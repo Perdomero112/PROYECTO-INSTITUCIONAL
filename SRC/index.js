@@ -1,13 +1,14 @@
 const express = require("express");
 const app = express()
-const PORT =3000;
+require('dotenv').config();
+const PORT = process.env.PORT || 3000;
 const path = require("path");
 const methodOverride = require("method-override");
 const session = require("express-session");
 
 
 app.use(session({
-    secret: 'mi_secreto',
+    secret: process.env.SESSION_SECRET || 'mi_secreto',
     resave: false,
     saveUninitialized: true
 }));

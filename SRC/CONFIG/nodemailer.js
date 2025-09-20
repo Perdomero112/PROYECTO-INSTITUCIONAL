@@ -2,12 +2,12 @@ const nodemailer = require("nodemailer");
 
 // Crear transporter con configuración más robusta
 const transporte = nodemailer.createTransport({
-    host: "smtp.gmail.com",
-    port: 587,
-    secure: false, // true para 465, false para otros puertos
+    host: process.env.SMTP_HOST || "smtp.gmail.com",
+    port: process.env.SMTP_PORT ? Number(process.env.SMTP_PORT) : 587,
+    secure: process.env.SMTP_SECURE ? process.env.SMTP_SECURE === 'true' : false, // true para 465, false para otros puertos
     auth: {
-        user: "bibliotecaappbg00@gmail.com",
-        pass: "jrqu iofp lmme fpwc"
+        user: process.env.SMTP_USER,
+        pass: process.env.SMTP_PASS
     },
     tls: {
         rejectUnauthorized: false
@@ -29,7 +29,7 @@ async function enviarCodigo(email, codigo) {
         console.log("Código a enviar:", codigo);
         
         const info = await transporte.sendMail({
-            from: '"BIBLIOTECABG" <bibliotecaappbg00@gmail.com>',
+            from: process.env.SMTP_FROM || '"BIBLIOTECABG" <no-reply@example.com>',
             to: email,
             subject: "Código para recuperar contraseña",
             text: `Tu código de recuperación es: ${codigo}`,

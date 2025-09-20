@@ -1,10 +1,11 @@
 const mysql = require("mysql2");
 
 const conexion = mysql.createConnection({
-    host: "localhost",
-    database: "biblioteca_ie-bg",
-    user: "root",
-    password: ""
+    host: process.env.DB_HOST || "localhost",
+    database: process.env.DB_NAME || "biblioteca_ie-bg",
+    user: process.env.DB_USER || "root",
+    password: process.env.DB_PASSWORD || "",
+    port: process.env.DB_PORT ? Number(process.env.DB_PORT) : 3306
 });
 
 conexion.connect((err) => {
@@ -16,5 +17,3 @@ conexion.connect((err) => {
 });
 
 module.exports = conexion;
-
-
