@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/CSS/index.style.css">
+    <link rel="stylesheet" href="/CSS/tables.style.css">
+    <link rel="stylesheet" href="/CSS/prestamo.style.css">
+    <link rel="icon" href="/upload/icon-bg.png" type="imagen/png">
+    <style>
+        .alert {
+            padding: 1rem 1.5rem;
+            margin: 1rem 0;
+            border-radius: 8px;
+            font-weight: 500;
+            animation: slideDown 0.3s ease;
+        }
+        
+        .alert-success {
+            background: #d1fae5;
+            color: #065f46;
+            border: 1px solid #10b981;
+        }
+        
+        .alert-error {
+            background: #fee2e2;
+            color: #991b1b;
+            border: 1px solid #ef4444;
+        }
+        
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 1;
+                transform: translateY(0);
+            }
+            to {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+        }
+
+        /* Modal de confirmación personalizado */
+        .modal-confirmacion {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
+        }
+        
+        .modal-content-confirmacion {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            max-width: 400px;
+            width: 90%;
+            text-align: center;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            animation: modalSlideIn 0.3s ease;
+        }
+        
+        @keyframes modalSlideIn {
+            from {
+                opacity: 0;
+                transform: scale(0.9) translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1) translateY(0);
+            }
+        }
+        
+        .modal-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+        
+        .modal-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: #1f2937;
+        }
+        
+        .modal-message {
+            color: #6b7280;
+            margin-bottom: 2rem;
+            line-height: 1.5;
+        }
+        
+        .modal-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+        }
+        
+        .btn-confirmar, .btn-cancelar-modal {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
+        
+        .btn-confirmar {
+            background: #ef4444;
+            color: white;
+        }
+        
+        .btn-confirmar:hover {
+            background: #dc2626;
+        }
+        
+        .btn-cancelar-modal {
+            background: #f3f4f6;
+            color: #374151;
+        }
+        
+        .btn-cancelar-modal:hover {
+            background: #e5e7eb;
+        }
+    </style>
+    <title>PRESTAMOS</title>
+    
+</head>
+<body>
+    <header>
+        <nav>
+            <div class="logo">
+                <img src="/upload/icon-bg.png" alt="Logo" class="logo-img">
+                <div class="logo-text">
+                    <span>MI BIBLIOTECA</span>
+                    <p>Braulio Gonzalez</p>
+                </div>
+            </div>
+            
+            <ul class="nav-links">
+                <li><a href="/"><img src="/upload/home_icon-bg_black.png" >inicio</a></li>
+                <li><a href="/catalogoLibros"><img src="/upload/catalogo_book_icon.png" >catalogo</a></li>
+                 <!--opciones administrador-->
+                 <% if (user && user.rol === 'admin') { %>
+                 <li>
+                    <select name="administrar" id="opcionAdmin">
+                        <option value="">administrar</option>
+                        <option value="/registrarLibro">registrar libro</option>
+                        <option value="/prestamos">Préstamos</option>
+                        <option value="/usuarios">Usuarios</option>
+                    </select>
+                </li>
+                <% } else { %>
+                <li>
+                    <a href="prestamos"><img src="/upload/prestamo_usr_icon.png" >Mis préstamos</a>
+                </li>
+                
+                <% } %>
+
+                
+                <!--modal perfil-->
+                <li><button class="modal_perfil-btn" id="btnPerfil"><img src="/upload/usr_login_icon.png" ></button></li>
+                <div class="modal-perfil" id="modalPerfil">
+                    <div class="modal-content-perfil">
+                        <span class="close-btn" id="closeBtn">&times;</span>
+                        
+                        <% if (user) { %>
+                            <div class="user-info">
+                                <h3>Perfil de Usuario</h3>
+                                <div class="user-details">
+                                    <p><strong>Nombre:</strong> <%= user.nombre || 'No disponible' %></p>
+                                    <% if (user.num_documento) { %>
+                                        <p><strong>Documento:</strong> <%= user.num_documento %></p>
+                                    <% } %>
+                                    <p><strong>Email:</strong> <%= user.email || 'No disponible' %></p>
+                                    <p><strong>Rol:</strong> <%= user.rol || 'No definido' %></p>
+                                    <% if (user.rol === 'estudiante' && (user.grado || user.curso)) { %>
+                                        <p><strong>Grado:</strong> <%= (user.grado || '') %><%= user.grado && user.curso ? ' - ' : '' %><%= (user.curso || '') %></p>
+                                    <% } %>
+                                </div>
+                            </div>
+                            <a href="/logout" class="btn-logout">
+                                <img src="/upload/cerrar-session_icon.png" alt="logout">
+                                Cerrar Sesión
+                            </a>
+                        <% } else { %>
+                            <div class="user-info">
+                                <h3>Acceso Requerido</h3>
+                                <p>No has iniciado sesión.</p>
+                            </div>
+                            <a href="/login" class="btn-iniciar-sesion">Iniciar Sesión</a>
+                        <% } %>
+                        
+                    </div>
+                </div>
+               
+                
+                
+            </ul>
+            <!--menu_movil-->
+            <div class="menu-movil" id="menuMovil">
+                <button id="btnPerfilMobile" class="modal_perfil-btn btn-perfil-mobile" aria-label="Perfil"><img src="/upload/usr_login_icon.png" alt="perfil"></button>
+                <button id="btnMenuMobile"><img src="/upload/menu_icon.png" alt="menu-img"></button>
+                <div class="menu-content">
+                    <div class="bar1">
+                        <a href="/"><img src="/upload/home_icon-bg_black.png" alt="home-img">Inicio</a>
+                    </div>
+                    <div class="bar2">
+                        <a href="/catalogoLibros"><img src="/upload/catalogo_book_icon.png" alt="catalogo-img">Catálogo</a>
+                        <% if (user && user.rol === 'admin') { %>
+                            <a href="/registrarLibro"><img src="/upload/new_libro_icon.png" alt="libro-img">Registrar Libro</a>
+                            <a href="/prestamos"><img src="/upload/prestamo_usr_icon.png" alt="prestamo-img">Préstamos</a>
+                            <a href="/usuarios"><img src="/upload/user_ver_icon.png" alt="usr-img">Usuarios</a>
+                        <% } else if (user) { %>
+                            <a href="/mis-prestamos"><img src="/upload/prestamo_usr_icon.png" alt="prestamo-img">Mis Préstamos</a>
+                        <% } %>
+                    </div>
+                    <div class="bar3">
+                        <% if (user) { %>
+                            <a href="/logout" class="btn-logout-movil"><img src="/upload/cerrar-session_icon.png" alt="logaut-img">Cerrar Sesión</a>
+                        <% } else { %>
+                            <a href="/login" class="btn-iniciar-sesion-movil">Iniciar Sesión</a>
+                        <% } %>
+                    </div>
+                </div>
+            </div>
+        </nav>
+    </header>
+    <main>
+        <h1>PRÉSTAMOS</h1>
+        
+        <!-- Mostrar mensajes de éxito o error -->
+        <% if (typeof success !== 'undefined' && success) { %>
+            <div class="alert alert-success">
+                <span>✅ <%= success %></span>
+            </div>
+        <% } %>
+        
+        <% if (typeof error !== 'undefined' && error) { %>
+            <div class="alert alert-error">
+                <span>❌ <%= error %></span>
+            </div>
+        <% } %>
+        <!-- Sección de búsqueda en la parte superior -->
+        <div class="search-container">
+            <form action="/buscarPrestamo" method="GET" class="search-form">
+                <div class="search-inputs">
+                    <div class="search-field">
+                        <label for="buscador">Término de búsqueda</label>
+                        <input type="search" name="q" id="buscador" 
+                               placeholder="Buscar..."
+                               value="<%= typeof terminoBusqueda !== 'undefined' ? terminoBusqueda : '' %>">
+                    </div>
+
+                    <div class="filter-field">
+                        <label for="opcion-busqueda">Estado</label>
+                        <select name="opcion-busqueda" id="opcion-busqueda">
+                            <option value="">Todos los estados</option>
+                            <option value="pendientes" <%= (typeof filtroEstado !== 'undefined' && filtroEstado === 'pendientes') ? 'selected' : '' %>>Pendientes</option>
+                            <option value="enPrestamo" <%= (typeof filtroEstado !== 'undefined' && filtroEstado === 'enPrestamo') ? 'selected' : '' %>>En Préstamo</option>
+                            <option value="devueltos" <%= (typeof filtroEstado !== 'undefined' && filtroEstado === 'devueltos') ? 'selected' : '' %>>Devueltos</option>
+                            <option value="morosos" <%= (typeof filtroEstado !== 'undefined' && filtroEstado === 'morosos') ? 'selected' : '' %>>Morosos</option>
+                        </select>
+                    </div>
+
+                    <button type="submit" id="btn-buscar" class="search-btn">
+                        Buscar
+                    </button>
+                    
+                    <% if ((typeof terminoBusqueda !== 'undefined' && terminoBusqueda) || (typeof filtroEstado !== 'undefined' && filtroEstado)) { %>
+                        <a href="/prestamos" class="clear-btn">
+                            Limpiar
+                        </a>
+                    <% } %>
+                </div>
+            </form>
+        </div>
+
+        <!-- Contenido principal con tabla -->
+        <div class="table-container">
+        <!-- tabla prestamos admin-->
+        <% if (user && user.rol === 'admin') { %>
+        <table class="prestamos-table"> 
+            <thead>
+                <tr>
+                    <th >ID PRÉSTAMO</th>
+                    <th>NOMBRE DEL ESTUDIANTE</th>
+                    <th>ROL</th>
+                    <th>NOMBRE DEL LIBRO</th>
+                    <th>FECHA DE ENTREGA</th>
+                    <th>OBSERVACIÓN</th>
+                    <th >CANTIDAD</th>
+                    <th>ESTADO</th>
+                    <% if (user && user.rol === 'admin') { %>
+                        <th>OPCIONES</th>
+                    <% } %>
+                </tr>
+            </thead>
+            <tbody>
+                        <% if (typeof prestamos !== 'undefined' && Array.isArray(prestamos)) { %>
+                            <% prestamos.forEach(p => { %>
+                                <tr>
+                                <td ><%= p.id_prest %></td>
+                                <td><%= p.nombre_usr || p.nombre || 'N/A' %></td>
+                                <td><%= p.rol || p.id_rol || 'N/A' %></td>
+                                <td><%= p.nombre_libro || p.nombre || p.titulo || 'N/A' %></td>
+                                <td><%= p.fecha ? new Date(p.fecha).toLocaleDateString() : 'N/A' %></td>
+                                <td><%= p.observacion || 'Sin observaciones' %></td>
+                                <td><%= p.cantidad_prest || 'N/A' %></td>
+                                <td><%= p.estado || 'Pendiente' %></td>
+                                
+                                    <td>
+                                        <% if (p.estado === 'pendiente') { %>
+                                        <!--aceptar prestamo-->
+                                        <form action="/aceptarPrestamo/<%= p.id_prest %>" method="post" class="form-aceptar-prestamo">
+                                            <input type="hidden" name="idLibro" value="<%= p.id_libro %>">
+                                            <button type="button" class="btn-aceptar" data-action="aceptar" data-prestamo-id="<%= p.id_prest %>" data-libro-nombre="<%= p.nombre_libro %>">ACEPTAR</button>
+                                        </form>
+                                        <% } %>
+                                        <% if (p.estado === 'en prestamo') { %>
+                                        <!--devolver prestamo-->
+                                        <form action="/devolverPrestamo/<%= p.id_prest %>" method="post" class="form-devolver-prestamo">
+                                            <input type="hidden" name="idLibro" value="<%= p.id_libro %>">
+                                            <button type="button" class="btn-devolver" data-action="devolver" data-prestamo-id="<%= p.id_prest %>" data-libro-nombre="<%= p.nombre_libro %>">DEVOLVER</button>
+                                        </form>
+                                        <% } %>
+                                        
+                                        <!--eliminar prestamo-->
+                                        <form action="/eliminarPrestamo/<%= p.id_prest %>" method="post" class="form-eliminar-prestamo">
+                                            <button type="button" class="btn-eliminar" data-action="eliminar" data-prestamo-id="<%= p.id_prest %>" data-libro-nombre="<%= p.nombre_libro %>">ELIMINAR</button>
+                                        </form>
+                                        
+                                    </td>
+                                
+                            </tr>
+                            <% }); %>
+                        <% } else { %>
+                            <tr>
+                                <td colspan="9" style="text-align: center;">No hay préstamos disponibles</td>
+                            </tr>
+                        <% } %>
+                    </tbody>
+        </table>
+
+        <!-- Cards móviles (ADMIN) -->
+        <div class="cards-list prestamos-cards admin">
+            <% if (typeof prestamos !== 'undefined' && Array.isArray(prestamos) && prestamos.length) { %>
+                <% prestamos.forEach(p => { %>
+                <div class="card">
+                    <div class="card-row"><span class="card-label">ID Préstamo</span><span class="card-value"><%= p.id_prest %></span></div>
+                    <div class="card-row"><span class="card-label">Estudiante</span><span class="card-value"><%= p.nombre_usr || p.nombre || 'N/A' %></span></div>
+                    <div class="card-row"><span class="card-label">Rol</span><span class="card-value"><%= p.rol || p.id_rol || 'N/A' %></span></div>
+                    <div class="card-row"><span class="card-label">Libro</span><span class="card-value"><%= p.nombre_libro || p.nombre || p.titulo || 'N/A' %></span></div>
+                    <div class="card-row"><span class="card-label">Fecha</span><span class="card-value"><%= p.fecha ? new Date(p.fecha).toLocaleDateString() : 'N/A' %></span></div>
+                    <div class="card-row"><span class="card-label">Obs.</span><span class="card-value"><%= p.observacion || 'Sin observaciones' %></span></div>
+                    <div class="card-row"><span class="card-label">Cant.</span><span class="card-value"><%= p.cantidad_prest || 'N/A' %></span></div>
+                    <div class="card-row"><span class="card-label">Estado</span><span class="card-badge <%= (p.estado||'').replace(/\s+/g,'-') %>"><%= p.estado || 'Pendiente' %></span></div>
+                    <div class="card-actions">
+                        <% if (p.estado === 'pendiente') { %>
+                        <form action="/aceptarPrestamo/<%= p.id_prest %>" method="post" class="form-aceptar-prestamo">
+                            <input type="hidden" name="idLibro" value="<%= p.id_libro %>">
+                            <button type="button" class="btn-aceptar" data-action="aceptar" data-prestamo-id="<%= p.id_prest %>" data-libro-nombre="<%= p.nombre_libro %>">ACEPTAR</button>
+                        </form>
+                        <% } %>
+                        <% if (p.estado === 'en prestamo') { %>
+                        <form action="/devolverPrestamo/<%= p.id_prest %>" method="post" class="form-devolver-prestamo">
+                            <input type="hidden" name="idLibro" value="<%= p.id_libro %>">
+                            <button type="button" class="btn-devolver" data-action="devolver" data-prestamo-id="<%= p.id_prest %>" data-libro-nombre="<%= p.nombre_libro %>">DEVOLVER</button>
+                        </form>
+                        <% } %>
+                        <form action="/eliminarPrestamo/<%= p.id_prest %>" method="post" class="form-eliminar-prestamo">
+                            <button type="button" class="btn-eliminar" data-action="eliminar" data-prestamo-id="<%= p.id_prest %>" data-libro-nombre="<%= p.nombre_libro %>">ELIMINAR</button>
+                        </form>
+                    </div>
+                </div>
+                <% }); %>
+            <% } else { %>
+                <div class="card empty">No hay préstamos disponibles</div>
+            <% } %>
+        </div>
+        <% } else { %>
+            <!-- tabla prestamos usuario-->
+             <table class="tabla-estudiante prestamos-table">
+                <thead>
+                    <tr>
+                        <th class="estudiante-id">ID</th>
+                        <th class="estudiante-libro">NOMBRE DEL LIBRO</th>
+                        <th class="estudiante-fecha">FECHA</th>
+                        <th class="estudiante-obs">OBSERVACIÓN</th>
+                        <th class="estudiante-cant">CANT.</th>
+                        <th class="estudiante-estado">ESTADO</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% if (typeof prestamos !== 'undefined' && Array.isArray(prestamos)) { %>
+                        <% prestamos.forEach(p => { %>
+                            <tr>
+                            <td class="estudiante-id"><%= p.id_prest %></td>
+                            <td class="estudiante-libro"><%= p.nombre_libro || p.nombre || p.titulo || 'N/A' %></td>
+                            <td class="estudiante-fecha"><%= p.fecha ? new Date(p.fecha).toLocaleDateString() : 'N/A' %></td>
+                            <td class="estudiante-obs"><%= p.observacion || 'Sin observaciones' %></td>
+                            <td class="estudiante-cant"><%= p.cantidad_prest || 'N/A' %></td>
+                            <td class="estudiante-estado"><%= p.estado || 'Pendiente' %></td>
+                        </tr>
+                        <% }); %>
+                    <% } else { %>
+                        <tr>
+                            <td colspan="6" style="text-align: center;">No hay préstamos disponibles</td>
+                        </tr>
+                    <% } %>
+                </tbody>
+             </table>
+
+             <!-- Cards móviles (USUARIO) -->
+             <div class="cards-list prestamos-cards usuario">
+                <% if (typeof prestamos !== 'undefined' && Array.isArray(prestamos) && prestamos.length) { %>
+                    <% prestamos.forEach(p => { %>
+                    <div class="card">
+                        <div class="card-row"><span class="card-label">ID</span><span class="card-value"><%= p.id_prest %></span></div>
+                        <div class="card-row"><span class="card-label">Libro</span><span class="card-value"><%= p.nombre_libro || p.nombre || p.titulo || 'N/A' %></span></div>
+                        <div class="card-row"><span class="card-label">Fecha</span><span class="card-value"><%= p.fecha ? new Date(p.fecha).toLocaleDateString() : 'N/A' %></span></div>
+                        <div class="card-row"><span class="card-label">Obs.</span><span class="card-value"><%= p.observacion || 'Sin observaciones' %></span></div>
+                        <div class="card-row"><span class="card-label">Cant.</span><span class="card-value"><%= p.cantidad_prest || 'N/A' %></span></div>
+                        <div class="card-row"><span class="card-label">Estado</span><span class="card-badge <%= (p.estado||'').replace(/\s+/g,'-') %>"><%= p.estado || 'Pendiente' %></span></div>
+                    </div>
+                    <% }); %>
+                <% } else { %>
+                    <div class="card empty">No hay préstamos disponibles</div>
+                <% } %>
+             </div>
+        <% } %>
+        </div> <!-- Cierre table-container -->
+    </main>
+    <!-- Modal de confirmación personalizado -->
+    <div class="modal-confirmacion" id="modalConfirmacion">
+        <div class="modal-content-confirmacion">
+            <div class="modal-icon" id="modalIcon">⚠️</div>
+            <h3 class="modal-title" id="modalTitle">Confirmar acción</h3>
+            <p class="modal-message" id="modalMessage">¿Estás seguro de realizar esta acción?</p>
+            <div class="modal-buttons">
+                <button class="btn-confirmar" id="btnConfirmar">Confirmar</button>
+                <button class="btn-cancelar-modal" id="btnCancelar">Cancelar</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="/JS/base.script.js"></script>
+    <script src="/JS/prestamo.script.js"></script>
+</body>
+</html>

@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/CSS/index.style.css">
+    <link rel="icon" href="/upload/icon-bg.png" type="imagen/png">
+    <title>BIBLIOTECA COLBRAULIO</title>
+</head>
+<body>
+    <header>
+        <nav>
+            <div class="logo">
+                <img src="/upload/icon-bg.png" alt="Logo" class="logo-img">
+                <div class="logo-text">
+                    <span>MI BIBLIOTECA</span>
+                    <p>Braulio Gonzalez</p>
+                </div>
+            </div>
+            
+            <ul class="nav-links">
+                <li><a href="/"><img src="/upload/home_icon-bg_black.png" >inicio</a></li>
+                <li><a href="/catalogoLibros"><img src="/upload/catalogo_book_icon.png" >catalogo</a></li>
+                 <!--opciones administrador-->
+                 <% if (user && user.rol === 'admin') { %>
+                 <li>
+                    <select name="administrar" id="opcionAdmin">
+                        <option value="">administrar</option>
+                        <option value="/registrarLibro">registrar libro</option>
+                        <option value="/prestamos">Préstamos</option>
+                        <option value="/usuarios">Usuarios</option>
+                    </select>
+                </li>
+                <% } else { %>
+                <li>
+                    <a href="prestamos"><img src="/upload/prestamo_usr_icon.png" >Mis préstamos</a>
+                </li>
+                
+                <% } %>
+
+                
+                <!--modal perfil-->
+                <li><button class="modal_perfil-btn" id="btnPerfil"><img src="/upload/usr_login_icon.png" ></button></li>
+                <div class="modal-perfil" id="modalPerfil">
+                    <div class="modal-content-perfil">
+                        <span class="close-btn" id="closeBtn">&times;</span>
+                        
+                        <% if (user) { %>
+                            <div class="user-info">
+                                <h3>Perfil de Usuario</h3>
+                                <div class="user-details">
+                                    <p><strong>Nombre:</strong> <%= user.nombre || 'No disponible' %></p>
+                                    <% if (user.num_documento) { %>
+                                        <p><strong>Documento:</strong> <%= user.num_documento %></p>
+                                    <% } %>
+                                    <p><strong>Email:</strong> <%= user.email || 'No disponible' %></p>
+                                    <p><strong>Rol:</strong> <%= user.rol || 'No definido' %></p>
+                                    <% if (user.rol === 'estudiante' && (user.grado || user.curso)) { %>
+                                        <p><strong>Grado:</strong> <%= (user.grado || '') %><%= user.grado && user.curso ? ' - ' : '' %><%= (user.curso || '') %></p>
+                                    <% } %>
+                                </div>
+                            </div>
+                            <a href="/logout" class="btn-logout">
+                                <img src="/upload/cerrar-session_icon.png" alt="logout">
+                                Cerrar Sesión
+                            </a>
+                        <% } else { %>
+                            <div class="user-info">
+                                <h3>Acceso Requerido</h3>
+                                <p>No has iniciado sesión.</p>
+                            </div>
+                            <a href="/login" class="btn-iniciar-sesion">Iniciar Sesión</a>
+                        <% } %>
+                        
+                    </div>
+                </div>
+               
+                
+                
+            </ul>
+            <!--menu_movil-->
+            <div class="menu-movil" id="menuMovil">
+                <button id="btnPerfilMobile" class="modal_perfil-btn btn-perfil-mobile" aria-label="Perfil"><img src="/upload/usr_login_icon.png" alt="perfil"></button>
+                <button id="btnMenuMobile"><img src="/upload/menu_icon.png" alt="menu-img"></button>
+                <div class="menu-content">
+                    <div class="bar1">
+                        <a href="/"><img src="/upload/home_icon-bg_black.png" alt="home-img">Inicio</a>
+                    </div>
+                    <div class="bar2">
+                        <a href="/catalogoLibros"><img src="/upload/catalogo_book_icon.png" alt="catalogo-img">Catálogo</a>
+                        <% if (user && user.rol === 'admin') { %>
+                            <a href="/registrarLibro"><img src="/upload/new_libro_icon.png" alt="libro-img">Registrar Libro</a>
+                            <a href="/prestamos"><img src="/upload/prestamo_usr_icon.png" alt="prestamo-img">Préstamos</a>
+                            <a href="/usuarios"><img src="/upload/user_ver_icon.png" alt="usr-img">Usuarios</a>
+                        <% } else if (user) { %>
+                            <a href="/prestamos"><img src="/upload/prestamo_usr_icon.png" alt="prestamo-img">Mis Préstamos</a>
+                        <% } %>
+                    </div>
+                    <div class="bar3">
+                        <% if (user) { %>
+                            <a href="/logout" class="btn-logout-movil"><img src="/upload/cerrar-session_icon.png" alt="logaut-img">Cerrar Sesión</a>
+                        <% } else { %>
+                            <a href="/login" class="btn-iniciar-sesion-movil">Iniciar Sesión</a>
+                        <% } %>
+                    </div>
+                </div>
+            </div>
+        </nav>
+    </header>
+    <main>
+        <!-- Hero Section con fondo original -->
+        <section class="img-content">
+            <div class="textos">
+                <h1>BIENVENIDO A NUESTRA BIBLIOTECA INSTITUCIONAL</h1>
+                <p>Descubre, aprende y explora con nuestra colección de libros</p>
+                
+                <!-- Mostrar mensajes de éxito o error -->
+                <% if (typeof success !== 'undefined' && success) { %>
+                    <div class="alert alert-success">
+                        <span>✅ <%= success %></span>
+                    </div>
+                <% } %>
+                
+                <% if (typeof error !== 'undefined' && error) { %>
+                    <div class="alert alert-error">
+                        <span>❌ <%= error %></span>
+                    </div>
+                <% } %>
+                al alcance de tus manos<br>
+                Braulio Gonzalez sede centro</p>
+                <% if (user && user.rol === 'admin') { %>
+                    <a href="/registrarLibro" class="btn-agregar-libro">
+                        <img src="/upload/new_libro_icon.png" alt="Agregar" style="width: 20px; height: 20px;">
+                        Agregar Libro
+                    </a>
+                    
+                <% } %>
+            </div>
+            <div class="arrow">
+                <img src="/upload/arrow_icon.png" alt="arrow-img">
+            </div>
+        </section>
+        <!-- Sección principal con filtros integrados -->
+        <section class="main-content">
+            <div class="content-container">
+
+                <!-- Contenido de filtros integrado -->
+                <div class="filters-content">
+                    <!-- Sección Para Ti -->
+                    <div id="para-ti" class="filter-section active">
+                        <div class="section-header">
+                            <h3>Recomendados para ti</h3>
+                            <p>Libros seleccionados especialmente para ti</p>
+                        </div>
+                        <div class="libros-grid">
+                            <% librosAletorios.forEach(libro => { %>
+                                <div class="libro-card" data-id="<%= libro.id_libro %>">
+                                    <a href="infolibro/<%= libro.id_libro %>">
+                                        <div class="libro-imagen">
+                                            <% if (libro.imagen) { %>
+                                                <img src="/upload/<%= libro.imagen %>" alt="<%= libro.nombre %>" >
+                                            <% } else { %>
+                                                <div class="placeholder-imagen">
+                                                    <span>📚</span>
+                                                </div>
+                                            <% } %> 
+                                        </div>
+                                        <div class="libro-info">
+                                            <h4 class="libro-titulo"><%= libro.nombre %></h4>
+                                            <p class="libro-autor">por <%= libro.autor %></p>
+                                            <div class="libro-details">
+                                                <span class="libro-categoria"><%= libro.categoria %></span>
+                                                <span class="libro-cantidad">Stock: <%= libro.cantidad %></span>
+                                            </div>
+                                        </div>
+                                        
+                                    </a>
+                                    
+                                </div>
+                            <% }); %>
+                        </div>
+                    </div>
+
+                    <!-- Sección Populares -->
+                    <div id="populares" class="filter-section">
+                        <div class="section-header">
+                            <h3>Libros Populares</h3>
+                            <p>Los más leídos y recomendados</p>
+                        </div>
+                        <div class="libros-grid">
+                            <% librosAletorios.forEach(libro => { %>
+                                <div class="libro-card" data-id="<%= libro.id_libro %>">
+                                    <a href="infolibro/<%= libro.id_libro %>">
+                                        <div class="libro-imagen">
+                                            <% if (libro.imagen) { %>
+                                                <img src="/upload/<%= libro.imagen %>" alt="<%= libro.nombre %>" >
+                                            <% } else { %>
+                                                <div class="placeholder-imagen">
+                                                    <span>📚</span>
+                                                </div>
+                                            <% } %> 
+                                        </div>
+                                        <div class="libro-info">
+                                            <h4 class="libro-titulo"><%= libro.nombre %></h4>
+                                            <p class="libro-autor">por <%= libro.autor %></p>
+                                            <div class="libro-details">
+                                                <span class="libro-categoria"><%= libro.categoria %></span>
+                                                <span class="libro-cantidad">Stock: <%= libro.cantidad %></span>
+                                            </div>
+                                        </div>
+                                        
+                                    </a>
+                                </div>
+                            <% }); %>
+                        </div>
+                    </div>
+
+                    <!-- Sección Por Categoría -->
+                    <div id="categoria" class="filter-section">
+                        <div class="section-header">
+                            <h3>Por Categoría</h3>
+                            <p>Libros organizados por temática</p>
+                        </div>
+                        <div class="libros-grid">
+                            <% librosPorCatalogo.forEach(libro => { %>
+                                <div class="libro-card">
+                                    <a href="infolibro/<%= libro.id_libro %>">
+                                        <div class="libro-imagen">
+                                            <% if (libro.imagen) { %>
+                                                <img src="/upload/<%= libro.imagen %>" alt="<%= libro.nombre %>" >
+                                            <% } else { %>
+                                                <div class="placeholder-imagen">
+                                                    <span>📚</span>
+                                                </div>
+                                            <% } %> 
+                                        </div>
+                                        <div class="libro-info">
+                                            <h4 class="libro-titulo"><%= libro.nombre %></h4>
+                                            <p class="libro-autor">por <%= libro.autor %></p>
+                                            <div class="libro-details">
+                                                <span class="libro-categoria"><%= libro.categoria %></span>
+                                                <span class="libro-cantidad">Stock: <%= libro.cantidad %></span>
+                                            </div>
+                                        </div>
+                                        
+                                    </a>
+                                </div>
+                            <% }); %>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Botón para ver más -->
+                <div class="ver-mas-container">
+                    <a href="/catalogoLibros" class="btn-ver-mas"><img src="/upload/catalogo_book_icon.png" alt="catalogo-img">explorar catalogo</a>
+                </div>
+            </div>
+        </section>
+        
+    </main>
+    <footer>
+        <div class="footer-content">
+            <div   class="logo-footer">
+                <img src="/upload/icon-bg.png" alt="Logo" class="logo-img-footer">
+                <div class="logo-text-footer">
+                    <span>MI BIBLIOTECA</span>
+                    <p>Braulio Gonzalez</p>
+                </div>
+            </div>
+            <div class="social-media">
+                <a href="https://www.facebook.com/profile.php?id=61555954465668" ><img src="/upload/facebook_icon.png" alt="Facebook"></a>
+                <a href="https://www.brauliogonzalez.edu.co/"><img src="/upload/internet_icon.png" alt="sitioWebPrincipal"></a>
+                <a href="https://www.tiktok.com/@modsistemasbg?_t=ZS-8zVUt52WxG6&_r=1"><img src="/upload/tik-tok_icon.png" alt="tiktok"></a>
+            </div>
+            <p>&copy; 2024 Biblioteca ColBraulio. Todos los derechos reservados.</p>
+        </div>
+    </footer>
+    <script src="/JS/base.script.js"></script>
+    <script src="/JS/index.script.js"></script>
+</body>
+</html>

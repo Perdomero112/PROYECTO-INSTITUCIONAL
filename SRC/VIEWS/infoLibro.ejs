@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/CSS/index.style.css">
+    <link rel="stylesheet" href="/CSS/infoLibro.style.css">
+    <link rel="icon" href="/upload/icon-bg.png" type="imagen/png">
+    <style>
+        /* Estilos del modal de perfil */
+        .modal-perfil {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
+            backdrop-filter: blur(5px);
+        }
+
+        .modal-perfil.active {
+            display: flex;
+        }
+
+        .modal-content-perfil {
+            background: white;
+            padding: 2rem;
+            border-radius: 16px;
+            max-width: 450px;
+            width: 90%;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            animation: modalSlideIn 0.3s ease;
+            position: relative;
+        }
+
+        @keyframes modalSlideIn {
+            from {
+                opacity: 0;
+                transform: scale(0.9) translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1) translateY(0);
+            }
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #6b7280;
+            transition: color 0.2s ease;
+        }
+
+        .close-btn:hover {
+            color: #374151;
+        }
+
+        .user-info h3 {
+            color: #1f2937;
+            margin-bottom: 1rem;
+            font-size: 1.25rem;
+        }
+
+        .user-details p {
+            margin: 0.5rem 0;
+            color: #4b5563;
+            line-height: 1.5;
+        }
+
+        .user-details strong {
+            color: #1f2937;
+        }
+
+        .btn-logout, .btn-iniciar-sesion {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1.5rem;
+            background: #ef4444;
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 500;
+            transition: background 0.2s ease;
+            margin-top: 1rem;
+        }
+
+        .btn-logout:hover {
+            background: #dc2626;
+        }
+
+        .btn-iniciar-sesion {
+            background: #3b82f6;
+        }
+
+        .btn-iniciar-sesion:hover {
+            background: #2563eb;
+        }
+
+        .alert {
+            padding: 1rem 1.5rem;
+            margin: 1rem 0;
+            border-radius: 8px;
+            font-weight: 500;
+            animation: slideDown 0.3s ease;
+        }
+        
+        .alert-success {
+            background: #d1fae5;
+            color: #065f46;
+            border: 1px solid #10b981;
+        }
+        
+        .alert-error {
+            background: #fee2e2;
+            color: #991b1b;
+            border: 1px solid #ef4444;
+        }
+        
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+    <title>BIBLIOTECA COLBRAULIO</title>
+</head>
+<body>
+    <header>
+        <nav>
+            <div class="logo">
+                <img src="/upload/icon-bg.png" alt="Logo" class="logo-img">
+                <div class="logo-text">
+                    <span>MI BIBLIOTECA</span>
+                    <p>Braulio Gonzalez</p>
+                </div>
+            </div>
+            
+            <ul class="nav-links">
+                <li><a href="/"><img src="/upload/home_icon-bg_black.png" >inicio</a></li>
+                <li><a href="/catalogoLibros"><img src="/upload/catalogo_book_icon.png" >catalogo</a></li>
+                 <!--opciones administrador-->
+                 <% if (user && user.rol === 'admin') { %>
+                 <li>
+                    <select name="administrar" id="opcionAdmin">
+                        <option value="">administrar</option>
+                        <option value="/registrarLibro">registrar libro</option>
+                        <option value="/prestamos">Préstamos</option>
+                        <option value="/usuarios">Usuarios</option>
+                    </select>
+                </li>
+                <% } else { %>
+                <li>
+                    <a href="/prestamos"><img src="/upload/prestamo_usr_icon.png" >Mis préstamos</a>
+                </li>
+                
+                <% } %>
+
+                
+                <!--modal perfil-->
+                <li><button class="modal_perfil-btn" id="btnPerfil"><img src="/upload/usr_login_icon.png" ></button></li>
+                <div class="modal-perfil" id="modalPerfil">
+                    <div class="modal-content-perfil">
+                        <span class="close-btn" id="closeBtn">&times;</span>
+                        
+                        <% if (user) { %>
+                            <div class="user-info">
+                                <h3>Perfil de Usuario</h3>
+                                <div class="user-details">
+                                    <p><strong>Nombre:</strong> <%= user.nombre || 'No disponible' %></p>
+                                    <% if (user.num_documento) { %>
+                                        <p><strong>Documento:</strong> <%= user.num_documento %></p>
+                                    <% } %>
+                                    <p><strong>Email:</strong> <%= user.email || 'No disponible' %></p>
+                                    <p><strong>Rol:</strong> <%= user.rol || 'No definido' %></p>
+                                    <% if (user.rol === 'estudiante' && (user.grado || user.curso)) { %>
+                                        <p><strong>Grado:</strong> <%= (user.grado || '') %><%= user.grado && user.curso ? ' - ' : '' %><%= (user.curso || '') %></p>
+                                    <% } %>
+                                </div>
+                            </div>
+                            <a href="/logout" class="btn-logout">
+                                <img src="/upload/cerrar-session_icon.png" alt="logout">
+                                Cerrar Sesión
+                            </a>
+                        <% } else { %>
+                            <div class="user-info">
+                                <h3>Acceso Requerido</h3>
+                                <p>No has iniciado sesión.</p>
+                            </div>
+                            <a href="/login" class="btn-iniciar-sesion">Iniciar Sesión</a>
+                        <% } %>
+                        
+                    </div>
+                </div>
+               
+                
+                
+            </ul>
+            <!--menu_movil-->
+            <div class="menu-movil" id="menuMovil">
+                <button id="btnPerfilMobile" class="modal_perfil-btn btn-perfil-mobile" aria-label="Perfil"><img src="/upload/usr_login_icon.png" alt="perfil"></button>
+                <button id="btnMenuMobile"><img src="/upload/menu_icon.png" alt="menu-img"></button>
+                <div class="menu-content">
+                    <div class="bar1">
+                        <a href="/"><img src="/upload/home_icon-bg_black.png" alt="home-img">Inicio</a>
+                    </div>
+                    <div class="bar2">
+                        <a href="/catalogoLibros"><img src="/upload/catalogo_book_icon.png" alt="catalogo-img">Catálogo</a>
+                        <% if (user && user.rol === 'admin') { %>
+                            <a href="/registrarLibro"><img src="/upload/new_libro_icon.png" alt="libro-img">Registrar Libro</a>
+                            <a href="/prestamos"><img src="/upload/prestamo_usr_icon.png" alt="prestamo-img">Préstamos</a>
+                            <a href="/usuarios"><img src="/upload/user_ver_icon.png" alt="usr-img">Usuarios</a>
+                        <% } else if (user) { %>
+                            <a href="/prestamos"><img src="/upload/prestamo_usr_icon.png" alt="prestamo-img">Mis Préstamos</a>
+                        <% } %>
+                    </div>
+                    <div class="bar3">
+                        <% if (user) { %>
+                            <a href="/logout" class="btn-logout-movil"><img src="/upload/cerrar-session_icon.png" alt="logaut-img">Cerrar Sesión</a>
+                        <% } else { %>
+                            <a href="/login" class="btn-iniciar-sesion-movil">Iniciar Sesión</a>
+                        <% } %>
+                    </div>
+                </div>
+            </div>
+        </nav>
+    </header>
+    <main>
+        <section>
+        <div class="contenedor-tabla">
+            <h1>INFORMACION DEL LIBRO</h1>
+            <div class="libro-card">
+                <div class="libro-imagen">
+                    <img src="/upload/<%= libro.imagen %>" alt="Imagen del libro">
+                </div>
+                <div class="libro-info">
+                    <h2 ><%= libro.nombre %></h2>
+                    <p class="info autor"><strong>Autor:</strong> <%= libro.autor %></p>
+                    <p class="info categoria"><strong>Categoria:</strong> <%= libro.categoria %></p>
+                    <p class="info descripcion"><strong>Descripcion:</strong> <%= libro.descripcion %></p>
+                    <%if (libro.cantidad > 0) { %>
+                        <p class="info Disponibilidad-yes"><strong>Disponibilidad:</strong>Disponible</p>
+                    <% } else { %>
+                        <p class="info Disponibilidad-not"><strong>Disponibilidad:</strong>No Disponible</p>
+                    <% } %>
+                    <button class="opcion_solicitar" id="abrirModalBtn" type="button">Solicitar libro</button>
+                    <div class="opciones_admin">
+                    <% if (user && user.rol === 'admin') {%>
+                        <a href="/editar/<%= libro.id_libro %>" class="btn-editar"><img src="/upload/edit_icon.png" alt="edit-img">EDITAR</a>
+                            <form action="/eliminar/<%= libro.id_libro %>" method="post" class="form-eliminar">
+                                <button type="submit" onclick="return confirm('¿Estás seguro de que quieres eliminar este libro?')" class="btn-eliminar"><img src="/upload/delete_icon.png" alt="delete-img" >ELIMINAR LIBRO</button>
+                            </form>
+                        <% if (libro.imagen) { %>
+                            <form action="/eliminar-imagen/<%= libro.id_libro %>" method="post" class="form-eliminar-imagen">
+                                <button type="submit" onclick="return confirm('¿Estás seguro de que quieres eliminar solo la imagen de este libro?')" class="btn-eliminar-imagen">ELIMINAR IMAGEN</button>
+                            </form>
+                        <% } %>
+                        <%}else {%>
+                            <div class="btn-favorito">
+                                <button type="button" title="Agregar a favoritos"><img src="/upload/favorite_icon.png" alt="" srcset=""></button>
+                            </div>
+                        <%} %>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+    </main>
+    <div id="prestamoModal" class="modal">
+            <div class="modal-contenedor">
+                <span id="cerrarModal" class="cerrar">&times;</span>
+                <h2>SOLICITAR PRESTAMO</h2>
+                <form action="/solicitarPrestamo" method="POST">
+                    <input type="hidden" name="id_libro" value="<%= libro.id_libro %>">
+                    <input type="hidden" name="id_usr" value="<%= user.id %>">
+                    <input type="hidden" name="estado" value="pendiente">
+                    <div class="datos-solicitud">
+                        <label for="LIBRO:">
+                            <strong>Libro:</strong> <%= libro.nombre %>
+                        </label>
+                    </div>
+                    <div class="dato-login">
+                        <label for="nombre">
+                            <strong>Nombre:</strong> <%= user ? user.nombre : 'No logueado' %>
+                        </label>
+                        <label for="rol">
+                            <strong>Rol:</strong> <%= user ? user.rol : 'No definido' %>
+                        </label>
+                    </div>
+                    <div class="dato-fecha">
+                        <label for="fecha">Fecha de Entrega:</label>
+                        <input type="date" id="fecha" name="fecha" required>
+                    </div>
+                    <div>
+                        <label for="observacion">Observación:</label>
+                        <textarea id="observacion" name="observacion" rows="3" placeholder="Ingrese observaciones adicionales..."></textarea>
+                    </div>
+                    <% if (user && user.rol === 'docente') { %>
+                        <div>
+                            <label for="cantidad">Cantidad (máximo <%= libro.cantidad %>):</label>
+                            <input type="number" id="cantidad" name="cantidad" min="1" max="<%= libro.cantidad %>" required>
+                        </div>
+                    <% } else { %>
+                        <div>
+                            <label for="cantidad">Cantidad: 1 (estudiante)</label>
+                            <input type="hidden" name="cantidad" value="1">
+                            <input type="number" value="1" disabled class="cantidad-disabled">
+                        </div>
+                    <% } %>
+                    
+                    <button type="submit" id="solicitarBtn">Solicitar Préstamo</button>
+                </form>
+                <div class="nota_container">
+                    <p class="p nota"><strong>Nota:</strong> Recuerda que el préstamo es por un máximo de 15 días para estudiantes y 30 días para docentes.</p>
+                    <p class="p importante"><strong>Importante:</strong> Una vez hecho la solicitud, tendra que dirigirse a la biblioteca institucional en su respectivo horario de atencion</p>
+                    <p class="p horario"><strong>Horiarios de atencion</strong>lunes a viernes  8:15 am - 8:25 am , 10:15 am - 10:25 am</p>
+                </div>
+            </div>
+        </div>
+    <script src="/JS/base.script.js"></script>
+    <script src="/JS/index.script.js"></script>
+    <script src="/JS/infoLibro.script.js"></script>
+</body>
+</html>

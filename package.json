@@ -1,0 +1,37 @@
+{
+  "name": "prueba-nodejs-apirest",
+  "version": "1.0.0",
+  "main": "SRC/index.js",
+  "scripts": {
+    "dev": "nodemon SRC/index.js",
+    "start": "node SRC/index.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "bcrypt": "^6.0.0",
+    "cors": "^2.8.5",
+    "docker": "^1.0.0",
+    "dotenv": "^16.6.1",
+    "ejs": "^3.1.10",
+    "express": "^5.1.0",
+    "express-session": "^1.18.2",
+    "firebase": "^12.1.0",
+    "firebase-tools": "^14.14.0",
+    "fs": "^0.0.1-security",
+    "git": "^0.1.5",
+    "method-override": "^3.0.0",
+    "multer": "^2.0.2",
+    "mysql2": "^3.14.3",
+    "nodemailer": "^7.0.5",
+    "router": "^2.2.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.10"
+  },
+  "engines": {
+    "node": ">=14.0.0"
+  }
+}

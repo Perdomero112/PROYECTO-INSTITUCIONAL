@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/CSS/index.style.css">
+    <link rel="stylesheet" href="/CSS/registroLibros.style.css">
+    <link rel="icon" href="/upload/icon-bg.png" type="imagen/png">
+    <title>REGISTRAR LIBRO</title>
+    
+    <style>
+        /* Modal perfil styles */
+        .modal-perfil {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(5px);
+        }
+
+        .modal-perfil.active {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content-perfil {
+            background-color: #fff;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            max-width: 400px;
+            width: 90%;
+            position: relative;
+            animation: modalSlideIn 0.3s ease-out;
+        }
+
+        @keyframes modalSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px) scale(0.95);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #6b7280;
+            transition: color 0.2s;
+        }
+
+        .close-btn:hover {
+            color: #374151;
+        }
+
+        /* Alert styles */
+        .alert {
+            padding: 1rem 1.5rem;
+            margin: 1rem 0;
+            border-radius: 8px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            position: relative;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            animation: slideDown 0.3s ease-out;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+                max-height: 0;
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+                max-height: 100px;
+            }
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 1;
+                transform: translateY(0);
+                max-height: 100px;
+            }
+            to {
+                opacity: 0;
+                transform: translateY(-10px);
+                max-height: 0;
+            }
+        }
+
+        .alert.slide-up {
+            animation: slideUp 0.3s ease-out forwards;
+        }
+
+        .alert-success {
+            background-color: #d1fae5;
+            color: #065f46;
+            border-left: 4px solid #10b981;
+        }
+
+        .alert-error {
+            background-color: #fee2e2;
+            color: #991b1b;
+            border-left: 4px solid #ef4444;
+        }
+
+        .alert-warning {
+            background-color: #fef3c7;
+            color: #92400e;
+            border-left: 4px solid #f59e0b;
+        }
+
+        .alert-info {
+            background-color: #dbeafe;
+            color: #1e40af;
+            border-left: 4px solid #3b82f6;
+        }
+
+        .alert::before {
+            content: '';
+            font-size: 1.25rem;
+        }
+
+        .alert-success::before {
+            content: '✅';
+        }
+
+        .alert-error::before {
+            content: '❌';
+        }
+
+        .alert-warning::before {
+            content: '⚠️';
+        }
+
+        .alert-info::before {
+            content: 'ℹ️';
+        }
+
+        .alert:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <nav>
+            <div class="logo">
+                <img src="/upload/icon-bg.png" alt="Logo" class="logo-img">
+                <div class="logo-text">
+                    <span>MI BIBLIOTECA</span>
+                    <p>Braulio Gonzalez</p>
+                </div>
+            </div>
+            
+            <ul class="nav-links">
+                <li><a href="/"><img src="/upload/home_icon-bg_black.png" >inicio</a></li>
+                <li><a href="/catalogoLibros"><img src="/upload/catalogo_book_icon.png" >catalogo</a></li>
+                 <!--opciones administrador-->
+                 
+                 <li>
+                    <select name="administrar" id="opcionAdmin">
+                        <option value="">administrar</option>
+                        <option value="/registrarLibro">registrar libro</option>
+                        <option value="/prestamos">Préstamos</option>
+                        <option value="/usuarios">Usuarios</option>
+                    </select>
+                </li>
+                
+
+                
+                <!--modal perfil-->
+                <li><button class="modal_perfil-btn" id="btnPerfil"><img src="/upload/usr_login_icon.png" ></button></li>
+                <div class="modal-perfil" id="modalPerfil">
+                    <div class="modal-content-perfil">
+                        <span class="close-btn" id="closeBtn">&times;</span>
+                        
+                        
+                            <div class="user-info">
+                                <h3>Perfil de Usuario</h3>
+                                <div class="user-details">
+                                    <% if (user) { %>
+                                        <p><strong>Nombre:</strong> <%= user.nombre || 'No disponible' %></p>
+                                        <% if (user.num_documento) { %>
+                                            <p><strong>Documento:</strong> <%= user.num_documento %></p>
+                                        <% } %>
+                                        <p><strong>Email:</strong> <%= user.email || 'No disponible' %></p>
+                                        <p><strong>Rol:</strong> <%= user.rol || 'No definido' %></p>
+                                    <% } else { %>
+                                        <p>No hay sesión activa</p>
+                                    <% } %>
+                                </div>
+                            </div>
+                            <% if (user) { %>
+                                <a href="/logout" class="btn-logout">
+                                    <img src="/upload/cerrar-session_icon.png" alt="logout">
+                                    Cerrar Sesión
+                                </a>
+                            <% } else { %>
+                                <a href="/login" class="btn-iniciar-sesion">
+                                    <img src="/upload/usr_login_icon.png" alt="login">
+                                    Iniciar Sesión
+                                </a>
+                            <% } %>
+                        
+                        
+                    </div>
+                </div>
+               
+                
+                
+            </ul>
+            <!--menu_movil-->
+            <div class="menu-movil" id="menuMovil">
+                <button id="btnPerfilMobile" class="modal_perfil-btn btn-perfil-mobile" aria-label="Perfil"><img src="/upload/usr_login_icon.png" alt="perfil"></button>
+                <button><img src="/upload/menu_icon.png" alt="menu-img"></button>
+                <div class="menu-content">
+                    <div class="bar1">
+                        <a href="/"><img src="/upload/home_icon-bg_black.png" alt="home-img">Inicio</a>
+                    </div>
+                    <div class="bar2">
+                        <a href="/catalogoLibros"><img src="/upload/catalogo_book_icon.png" alt="catalogo-img">Catálogo</a>
+                        <% if (user && user.rol === 'admin') { %>
+                            <a href="/registrarLibro"><img src="/upload/new_libro_icon.png" alt="libro-img">Registrar Libro</a>
+                            <a href="/prestamos"><img src="/upload/prestamo_usr_icon.png" alt="prestamo-img">Préstamos</a>
+                            <a href="/usuarios"><img src="/upload/user_ver_icon.png" alt="usr-img">Usuarios</a>
+                        <% } else if (user) { %>
+                            <a href="/mis-prestamos"><img src="/upload/prestamo_usr_icon.png" alt="prestamo-img">Mis Préstamos</a>
+                        <% } %>
+                    </div>
+                    <div class="bar3">
+                        <% if (user) { %>
+                            <a href="/logout" class="btn-logout-movil"><img src="/upload/cerrar-session_icon.png" alt="logaut-img">Cerrar Sesión</a>
+                        <% } else { %>
+                            <a href="/login" class="btn-iniciar-sesion-movil">Iniciar Sesión</a>
+                        <% } %>
+                    </div>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Alert Messages -->
+    <% if (typeof success !== 'undefined' && success) { %>
+        <div class="alert alert-success" id="alertMessage">
+            <%= success %>
+        </div>
+    <% } %>
+    <% if (typeof error !== 'undefined' && error) { %>
+        <div class="alert alert-error" id="alertMessage">
+            <%= error %>
+        </div>
+    <% } %>
+
+    <main>
+        <h1>Registra tu Libro</h1>
+        <div class="form-container">
+            <form action="/registro" method="post" enctype="multipart/form-data" id="registroForm">
+                <div class="form-group">
+                    <label for="nombre_libro">Nombre del libro:</label>
+                    <input type="text" name="nombre_libro" id="nombre_libro" required placeholder="Ingresa el título del libro">
+                </div>
+                <div class="form-group">
+                    <label for="autor">Autor:</label>
+                    <input type="text" name="autor" id="autor" required placeholder="Nombre del autor">
+                </div>
+                <div class="form-group">
+                    <label for="cantidad">Cantidad:</label>
+                    <input type="number" name="cantidad" id="cantidad" required min="1" placeholder="Número de ejemplares">
+                </div>
+                <div class="form-group">
+                    <label for="categoria">Categoría:</label>
+                    <input type="text" name="categoria" id="categoria" required placeholder="Género o categoría del libro">
+                </div>
+                <div class="form-group">
+                    <label for="imagen">Imagen del libro:</label>
+                    <input type="file" name="imagen" id="imagen" accept="image/*">
+                    <small style="color: #6b7280; font-size: 0.875rem;">Formatos permitidos: JPG, PNG (máx. 5MB)</small>
+                </div>
+                <input type="submit" value="Registrar Libro" id="submitBtn">
+            </form>
+        </div>
+    </main>
+    <script src="/JS/base.script.js"></script>
+    <script src="/JS/registroLibros.script.js"></script>
+</body>
+</html>
