@@ -1,6 +1,6 @@
-# Nombre de tu proyecto
+# BIBLIOTECA INSTIRUCIONAL BRAULIO GONZALEZ
 
-Breve descripción de lo que hace tu proyecto. Por ejemplo: "Este es un sistema para gestionar una biblioteca institucional, desarrollado con Node.js y MySQL."
+este es un proyecto de una biblioteca institucional, desarrollado con Node.js, Express ,EJS,nodemailer, multer, MySQL.
 
 ## Tabla de Contenido
 - [Características](#caracteristicas)
@@ -9,21 +9,22 @@ Breve descripción de lo que hace tu proyecto. Por ejemplo: "Este es un sistema 
 - [Uso](#uso)
 
 ## Características
-* Menciona las características principales de tu proyecto.
-* Por ejemplo:
-    * Registro y login de usuarios.
-    * Búsqueda de libros por título, autor o categoría.
-    * Sistema de préstamo y devolución de libros.
+* registro de libros.
+* prestamos de libros.
+* registro de usuarios.
+* Registro y login de usuarios.
+* Búsqueda de libros por título, autor o categoría.
+* Sistema de préstamo y devolución de libros.
 
 ## Tecnologías Utilizadas
-* Lista las tecnologías que usaste para construir tu proyecto.
-* Por ejemplo:
-    * **Backend:** Node.js, Express
-    * **Base de Datos:** MySQL
-    * **Frontend:** HTML, CSS, JavaScript
+* **Backend:** Node.js, Express
+* **Base de Datos:** MySQL
+* **Frontend:** EJS
+* **Email:** nodemailer
+* **Subida de archivos:** multer
 
 ## Instalación
-Describe los pasos para que alguien más pueda instalar y ejecutar tu proyecto en su computadora.
+PASOS PARA INSTALAR EL PROYECTO
 
 1.  Clona el repositorio:
     `git clone https://github.com/Perdomero112/PROYECTO-INSTITUCIONAL.git`
@@ -33,7 +34,7 @@ Describe los pasos para que alguien más pueda instalar y ejecutar tu proyecto e
     `npm install`
 
 ## Uso
-Explica cómo se usa tu proyecto una vez que está instalado.
+PASOS PARA USAR EL PROYECTO
 
 1.  Inicia el servidor:
     `npm start`
