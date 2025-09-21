@@ -1,13 +1,16 @@
 const nodemailer = require("nodemailer");
+const dotenv = require("dotenv");
+
+dotenv.config();
 
 // Crear transporter con configuración más robusta
 const transporte = nodemailer.createTransport({
-    host: "smtp.gmail.com",
-    port: 587,
-    secure: false, // true para 465, false para otros puertos
+    host: process.env.EMAIL_HOST || "smtp.gmail.com",
+    port: process.env.EMAIL_PORT ? parseInt(process.env.EMAIL_PORT, 10) : 587,
+    secure: (process.env.EMAIL_SECURE || "false").toLowerCase() === "true", // true para 465, false para otros puertos
     auth: {
-        user: "bibliotecaappbg00@gmail.com",
-        pass: "jrqu iofp lmme fpwc"
+        user: process.env.EMAIL_USER || "",
+        pass: process.env.EMAIL_PASS || ""
     },
     tls: {
         rejectUnauthorized: false
@@ -27,9 +30,10 @@ async function enviarCodigo(email, codigo) {
     try {
         console.log("Intentando enviar email a:", email);
         console.log("Código a enviar:", codigo);
-        
+        const fromAddress = process.env.EMAIL_USER ? `"BIBLIOTECABG" <${process.env.EMAIL_USER}>` : '"BIBLIOTECABG" <no-reply@example.com>';
+
         const info = await transporte.sendMail({
-            from: '"BIBLIOTECABG" <bibliotecaappbg00@gmail.com>',
+            from: fromAddress,
             to: email,
             subject: "Código para recuperar contraseña",
             text: `Tu código de recuperación es: ${codigo}`,
@@ -50,6 +54,10 @@ async function enviarCodigo(email, codigo) {
         });
         
         console.log("Email enviado exitosamente:", info.messageId);
+        console.log("Accepted:", info.accepted);
+        console.log("Rejected:", info.rejected);
+        console.log("Envelope:", info.envelope);
+        console.log("Response:", info.response);
         console.log("URL de vista previa:", nodemailer.getTestMessageUrl(info));
         return true;
     } catch (error) {

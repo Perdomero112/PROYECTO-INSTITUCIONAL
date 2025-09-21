@@ -5,6 +5,18 @@
     box-sizing: border-box;
 }
 
+/* Global guards to avoid horizontal overflow on mobile */
+html, body { max-width: 100%; }
+body {
+    overflow-x: hidden;
+    touch-action: pan-y;
+    overscroll-behavior-x: none;
+}
+
+/* Ensure media scale within containers */
+img, video, canvas, svg { max-width: 100%; height: auto; }
+a img { display: block; }
+
 /* Comportamiento por defecto (desktop): ocultar menú móvil y botón perfil móvil */
 .menu-movil { display: none; }
 .btn-perfil-mobile { display: none; }
@@ -541,6 +553,8 @@ select:focus {
     box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
     padding: 0.25rem; /* separación interna para que el contenido no pegue a los bordes */
     min-width: 220px;
+    max-width: 95vw; /* que nunca desborde pantalla en móvil */
+    overflow-x: hidden;
     z-index: 1500; /* por debajo del overlay del modal */
     margin-top: 0.5rem;
 }
@@ -924,12 +938,16 @@ main {
     line-clamp: 2;
     -webkit-box-orient: vertical;
     overflow: hidden;
+    word-break: break-word;
+    overflow-wrap: anywhere;
 }
 
 .libro-autor {
     color: #4b5563;
     font-size: 0.95rem;
     margin-bottom: 1rem;
+    word-break: break-word;
+    overflow-wrap: anywhere;
 }
 
 .libro-details {

@@ -60,8 +60,8 @@ ruta.post("/validarEmail", async (req, res) => {
                 res.status(200).send("Email validado correctamente. Código enviado.");
             } catch (emailError) {
                 console.error("Error al enviar email:", emailError);
-                // Aún así enviamos respuesta exitosa para que el usuario pueda continuar
-                res.status(200).send("Email validado correctamente. Código enviado.");
+                // No ocultar el error: informar al cliente para que pueda reintentar o reportar
+                res.status(500).send("No se pudo enviar el código por email. Intenta de nuevo más tarde.");
             }
         });
     } catch (error) {

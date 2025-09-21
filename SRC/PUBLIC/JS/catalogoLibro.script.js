@@ -17,6 +17,7 @@ function setupDeleteModals() {
                 modal.style.display = 'flex';
                 document.body.style.overflow = 'hidden';
             }
+
         });
     });
 
