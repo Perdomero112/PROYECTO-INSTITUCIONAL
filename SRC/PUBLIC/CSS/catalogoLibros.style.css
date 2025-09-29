@@ -1,7 +1,9 @@
 /* Asegurar que el dropdown del menú móvil quede bajo el overlay del modal */
+
 .menu-movil .menu-content {
  z-index: 1500;   min-width: 280px; /* evitar que se estreche y salten las opciones */
- max-width: 95vw; /* evitar desbordes en pantallas pequeñas */
+ max-width: calc(100vw - 24px); /* asegúrate de nunca superar el viewport */
+ margin-inline: 12px; /* deja margen de seguridad a ambos lados */
  overflow-x: hidden; /* no permitir scroll horizontal en el dropdown */
 }
 
@@ -32,6 +34,14 @@
   .menu-movil .menu-content a { white-space: normal; }
 }
 
+/* Ajuste extra para pantallas muy pequeñas (<=360px) */
+@media (max-width: 360px) {
+  .menu-movil .menu-content {
+    min-width: 200px;
+    max-width: 90vw;
+  }
+}
+
 /* Asegurar separación entre grupos y que no se peguen al borde */
 .menu-movil .bar1,
 .menu-movil .bar2,
@@ -51,7 +61,9 @@ nav #opcionAdmin {
 }
 
 /* Forzar que la vista catálogo no tenga desbordamiento horizontal */
-html, body { max-width: 100%; overflow-x: hidden; }
+html, body { width: 100%; max-width: 100%; overflow-x: hidden; }
+/* Evitar que header/nav puedan provocar overflow por padding o flex */
+header, nav { width: 100%; max-width: 100%; overflow-x: clip; }
 
 
 body {
@@ -60,6 +72,19 @@ body {
     color: #1f2937;
     background: linear-gradient(135deg, #fef2f2 0%, #ffffff 100%);
     overflow-x: hidden;
+    touch-action: pan-y; /* bloquear paneos horizontales */
+    overscroll-behavior-x: none; /* evitar rebote horizontal */
+}
+
+/* Guardas adicionales anti-overflow específicamente para catálogo */
+@media (max-width: 768px) {
+  header, nav, main, footer,
+  .search-container, .search-form,
+  .libros-grid, .libro-card {
+    max-width: 100%;
+    overflow-x: clip; /* recorta cualquier leve desborde de hijos */
+  }
+  .menu-movil { max-width: 100%; overflow-x: hidden; }
 }
 a{
     text-decoration: none;
@@ -388,6 +413,7 @@ h1{
     align-items: center;
     width: 100%;
     margin: 0 auto;
+    overflow-x: clip; /* previene desbordes si el contenido interno se expande */
 }
 .search-form {
     position: relative;
@@ -439,11 +465,12 @@ h1{
 
 .libros-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 250px), 1fr));
     gap: 32px;
     margin-top: 32px;
     justify-content: center;
     width: 100%;
+    overflow-x: hidden; /* no permitir scroll horizontal dentro de la grilla */
 }
 
 .libro-card {
@@ -458,6 +485,7 @@ h1{
     align-items: center;
     transition: box-shadow 0.2s;
     width: 100%;
+    overflow: hidden; /* evita que hijos generen overflow horizontal */
 }
 .libro-card:hover {
     box-shadow: 0 8px 32px rgba(211,47,47,0.15);
@@ -486,6 +514,11 @@ h1{
 img { max-width: 100%; height: auto; }
 .libro-card a { display: block; width: 100%; }
 .libro-imagen img { display: block; }
+
+/* Contenedores principales sin desbordamiento */
+main, header, nav, .search-container { max-width: 100%; overflow-x: hidden; }
+/* Asegurar que elementos flex puedan encoger y no forzar overflow */
+.logo, .nav-links, .search-form, .libro-card, .libro-info { min-width: 0; }
 
 .libro-info {
     margin-top: 16px;
@@ -722,7 +755,7 @@ padding: 2rem;
         margin-bottom: 16px;
     }
     
-    .search-form { width: 100%; padding: 0.75rem; border-radius: 12px; }
+    .search-form { width: 100%; padding: 0.75rem; border-radius: 12px; max-width: 100%; }
     
     #buscador {
         padding: 0.625rem 0.875rem;
@@ -734,10 +767,18 @@ padding: 2rem;
         font-size: 0.85rem;
     }
     
-    .libros-grid { grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 16px; margin-top: 20px; }
+    .libros-grid { 
+        grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); 
+        gap: 16px; 
+        margin-top: 20px; 
+        max-width: 100%; 
+        overflow: hidden; 
+    }
     
     .libro-card {
         padding: 16px 12px;
+        max-width: 100%;
+        overflow: hidden;
     }
     
     .libro-imagen img, .placeholder-imagen {
@@ -746,30 +787,30 @@ padding: 2rem;
         font-size: 36px;
     }
     
+    .libro-info {
+        flex: 1;
+        text-align: left;
+        min-width: 0; /* permite wrap y evita overflow por flex items */
+    }
+    
     .libro-titulo {
-        font-size: 16px;
-        margin-bottom: 4px;
+        font-size: 14px;
+        margin-bottom: 3px;
     }
     
     .libro-autor {
-        font-size: 14px;
-        margin-bottom: 6px;
+        font-size: 12px;
+        margin-bottom: 4px;
     }
     
     .libro-details {
-        font-size: 12px;
-        gap: 6px;
-        justify-content: center;
-        flex-wrap: wrap;
-    }
-    
-    .libro-categoria, .libro-cantidad {
-        font-size: 10px;
-        padding: 2px 5px;
+        font-size: 11px;
+        gap: 4px;
+        margin-bottom: 8px;
     }
     
     .libro-acciones {
-        margin-top: 10px;
+        margin-top: 6px;
         gap: 6px;
         flex-direction: row;
         flex-wrap: wrap;
@@ -803,9 +844,24 @@ padding: 2rem;
         gap: 0.75rem;
     }
     
-    .libros-grid { grid-template-columns: 1fr; gap: 12px; margin-top: 16px; }
+    .libros-grid { 
+        grid-template-columns: 1fr; 
+        gap: 12px; 
+        margin-top: 16px; 
+        max-width: 100%; 
+        overflow: hidden; 
+    }
     
-    .libro-card { padding: 12px 8px; display: flex; flex-direction: row; align-items: center; gap: 12px; text-align: left; }
+    .libro-card { 
+        padding: 12px 8px; 
+        display: flex; 
+        flex-direction: row; 
+        align-items: center; 
+        gap: 12px; 
+        text-align: left; 
+        max-width: 100%; 
+        overflow: hidden; 
+    }
     
     .libro-imagen {
         flex-shrink: 0;
