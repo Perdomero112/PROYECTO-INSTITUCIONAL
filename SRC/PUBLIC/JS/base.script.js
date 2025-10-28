@@ -98,9 +98,12 @@ function setupMobileMenu() {
         // Debug ligero (no intrusivo)
         try { console.debug('[menu-movil] init', { index: idx }); } catch {}
 
-        menuBtn.addEventListener('click', (e) => {
-            e.preventDefault();
-            e.stopPropagation();
+        let lastToggleTs = 0;
+        const toggleMenu = (e) => {
+            if (e) { e.preventDefault(); e.stopPropagation(); }
+            const now = Date.now();
+            if (now - lastToggleTs < 200) return; // evitar doble disparo por touch+click
+            lastToggleTs = now;
             menuContainer.classList.toggle('active');
 
             const icon = menuBtn.querySelector('img');
@@ -118,7 +121,10 @@ function setupMobileMenu() {
                     menuContent.style.display = 'none';
                 }
             }
-        });
+        };
+
+        menuBtn.addEventListener('click', toggleMenu);
+        menuBtn.addEventListener('touchend', toggleMenu, { passive: false });
 
         if (menuContent) {
             // Evitar que clics dentro del menú cierren inmediatamente por el listener global
