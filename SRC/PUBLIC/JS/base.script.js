@@ -100,8 +100,6 @@ function setupMobileMenu() {
 
         let lastToggleTs = 0;
         let lastOpenTs = 0;
-        let overlayEl = null;
-        let placeholder = null; // para portal de menú
         const toggleMenu = (e) => {
             if (e) { e.preventDefault(); e.stopPropagation(); }
             const now = Date.now();
@@ -118,43 +116,6 @@ function setupMobileMenu() {
             // Refuerzo visual: controlar display explícitamente por si algún CSS lo sobrescribe
             if (menuContent) {
                 if (menuContainer.classList.contains('active')) {
-                    // Portal: mover el dropdown al body para evitar clipping
-                    if (!placeholder) {
-                        placeholder = document.createElement('span');
-                        placeholder.style.display = 'none';
-                        menuContainer.insertBefore(placeholder, menuContent);
-                    }
-                    if (menuContent.parentNode !== document.body) {
-                        document.body.appendChild(menuContent);
-                    }
-                    // Overlay para cerrar al tocar fuera
-                    if (!overlayEl) {
-                        overlayEl = document.createElement('div');
-                        overlayEl.id = 'menu-overlay';
-                        overlayEl.style.position = 'fixed';
-                        overlayEl.style.inset = '0';
-                        overlayEl.style.background = 'transparent';
-                        overlayEl.style.zIndex = '9998';
-                        overlayEl.addEventListener('click', () => {
-                            // cerrar
-                            menuContainer.classList.remove('active');
-                            if (menuContent) {
-                                menuContent.style.display = 'none';
-                                menuContent.style.visibility = 'hidden';
-                                menuContent.style.opacity = '0';
-                                menuContent.style.pointerEvents = 'none';
-                            }
-                            if (overlayEl && overlayEl.parentNode) overlayEl.parentNode.removeChild(overlayEl);
-                            overlayEl = null;
-                            // restaurar menú a su contenedor original
-                            if (placeholder && placeholder.parentNode && menuContent.parentNode === document.body) {
-                                placeholder.parentNode.insertBefore(menuContent, placeholder);
-                            }
-                        });
-                    }
-                    if (!document.getElementById('menu-overlay')) {
-                        document.body.appendChild(overlayEl);
-                    }
                     // Forzar visibilidad y stacking (fixed) y posicionar relativo al botón
                     menuContent.style.display = 'flex';
                     menuContent.style.flexDirection = 'column';
@@ -166,31 +127,18 @@ function setupMobileMenu() {
                     // Posicionar relativo al botón para evitar clipping por layout específico
                     const btnRect = menuBtn.getBoundingClientRect();
                     const topPx = Math.round(btnRect.bottom + 8);
-                    // Posicionar por left para evitar problemas con contenedores flex/rtl
-                    const estimatedWidth = 260; // cercano a minWidth
-                    const leftCandidate = Math.round(btnRect.left);
-                    const leftPx = Math.max(12, Math.min(leftCandidate, window.innerWidth - estimatedWidth - 12));
+                    const rightPx = Math.round(Math.max(12, window.innerWidth - btnRect.right));
                     menuContent.style.top = topPx + 'px';
-                    menuContent.style.left = leftPx + 'px';
-                    menuContent.style.right = 'auto';
+                    menuContent.style.right = rightPx + 'px';
+                    menuContent.style.left = 'auto';
                     menuContent.style.maxWidth = '92vw';
                     menuContent.style.minWidth = '220px';
-                    // Garantizar visibilidad vertical
-                    const maxH = Math.max(180, window.innerHeight - topPx - 12);
-                    menuContent.style.maxHeight = maxH + 'px';
-                    menuContent.style.overflowY = 'auto';
                     lastOpenTs = now;
                 } else {
-                    // cerrar y limpiar overlay + restaurar portal
                     menuContent.style.display = 'none';
                     menuContent.style.visibility = 'hidden';
                     menuContent.style.opacity = '0';
                     menuContent.style.pointerEvents = 'none';
-                    if (overlayEl && overlayEl.parentNode) overlayEl.parentNode.removeChild(overlayEl);
-                    overlayEl = null;
-                    if (placeholder && placeholder.parentNode && menuContent.parentNode === document.body) {
-                        placeholder.parentNode.insertBefore(menuContent, placeholder);
-                    }
                 }
             }
         };
@@ -211,12 +159,6 @@ function setupMobileMenu() {
                     menuContainer.classList.remove('active');
                     // Ocultar explícitamente al cerrar por navegación
                     menuContent.style.display = 'none';
-                    if (overlayEl && overlayEl.parentNode) overlayEl.parentNode.removeChild(overlayEl);
-                    overlayEl = null;
-                    // restaurar portal
-                    if (placeholder && placeholder.parentNode && menuContent.parentNode === document.body) {
-                        placeholder.parentNode.insertBefore(menuContent, placeholder);
-                    }
                 });
             });
         }
@@ -225,8 +167,6 @@ function setupMobileMenu() {
         document.addEventListener('click', (e) => {
             // Pequeño guard para no cerrar inmediatamente tras abrir por bubbling en móviles
             if (Date.now() - lastOpenTs < 200) return;
-            // Si el menú fue movido al body, no cerrar cuando el target está dentro del menú
-            if (menuContent && menuContent.parentNode === document.body && menuContent.contains(e.target)) return;
             if (!menuContainer.contains(e.target)) {
                 menuContainer.classList.remove('active');
                 if (menuContent) {
@@ -234,11 +174,6 @@ function setupMobileMenu() {
                     menuContent.style.visibility = 'hidden';
                     menuContent.style.opacity = '0';
                     menuContent.style.pointerEvents = 'none';
-                }
-                if (overlayEl && overlayEl.parentNode) overlayEl.parentNode.removeChild(overlayEl);
-                overlayEl = null;
-                if (placeholder && placeholder.parentNode && menuContent && menuContent.parentNode === document.body) {
-                    placeholder.parentNode.insertBefore(menuContent, placeholder);
                 }
             }
         });
