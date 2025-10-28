@@ -1,14 +1,21 @@
 // Biblioteca Institucional - JavaScript Base
 // Funciones comunes para todas las páginas
 
-document.addEventListener('DOMContentLoaded', function() {
-    relocateProfileModalToBody();
-    setupProfileModal();
-    setupMobileMenu();
-    setupSelectNavigation();
-    setupNotifications();
-    setupAnimations();
-});
+(function init() {
+    const run = () => {
+        relocateProfileModalToBody();
+        setupProfileModal();
+        setupMobileMenu();
+        setupSelectNavigation();
+        setupNotifications();
+        setupAnimations();
+    };
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', run, { once: true });
+    } else {
+        run();
+    }
+})();
 
 // Modal de perfil
 function setupProfileModal() {
