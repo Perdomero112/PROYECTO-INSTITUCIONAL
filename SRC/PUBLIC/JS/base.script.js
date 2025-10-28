@@ -102,12 +102,30 @@ function setupMobileMenu() {
                     ? 'rotate(90deg)'
                     : 'rotate(0deg)';
             }
+            // Refuerzo visual: controlar display explícitamente por si algún CSS lo sobrescribe
+            if (menuContent) {
+                if (menuContainer.classList.contains('active')) {
+                    menuContent.style.display = 'flex';
+                    menuContent.style.flexDirection = 'column';
+                } else {
+                    menuContent.style.display = 'none';
+                }
+            }
         });
 
         if (menuContent) {
+            // Evitar que clics dentro del menú cierren inmediatamente por el listener global
+            if (!menuContent.__menuBound) {
+                menuContent.__menuBound = true;
+                menuContent.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                });
+            }
             menuContent.querySelectorAll('a').forEach(link => {
                 link.addEventListener('click', () => {
                     menuContainer.classList.remove('active');
+                    // Ocultar explícitamente al cerrar por navegación
+                    menuContent.style.display = 'none';
                 });
             });
         }
