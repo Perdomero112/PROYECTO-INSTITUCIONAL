@@ -116,7 +116,7 @@ function setupMobileMenu() {
             // Refuerzo visual: controlar display explícitamente por si algún CSS lo sobrescribe
             if (menuContent) {
                 if (menuContainer.classList.contains('active')) {
-                    // Forzar visibilidad y stacking (fixed para evitar clipping en catálogo)
+                    // Forzar visibilidad y stacking (fixed) y posicionar relativo al botón
                     menuContent.style.display = 'flex';
                     menuContent.style.flexDirection = 'column';
                     menuContent.style.visibility = 'visible';
@@ -124,10 +124,12 @@ function setupMobileMenu() {
                     menuContent.style.pointerEvents = 'auto';
                     menuContent.style.zIndex = '9999';
                     menuContent.style.position = 'fixed';
-                    const header = document.querySelector('header');
-                    const headerH = header ? Math.min(header.offsetHeight || 64, 96) : 64;
-                    menuContent.style.top = (headerH + 8) + 'px';
-                    menuContent.style.right = '12px';
+                    // Posicionar relativo al botón para evitar clipping por layout específico
+                    const btnRect = menuBtn.getBoundingClientRect();
+                    const topPx = Math.round(btnRect.bottom + 8);
+                    const rightPx = Math.round(Math.max(12, window.innerWidth - btnRect.right));
+                    menuContent.style.top = topPx + 'px';
+                    menuContent.style.right = rightPx + 'px';
                     menuContent.style.left = 'auto';
                     menuContent.style.maxWidth = '92vw';
                     menuContent.style.minWidth = '220px';
