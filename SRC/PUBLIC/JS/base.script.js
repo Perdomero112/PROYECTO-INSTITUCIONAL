@@ -99,6 +99,7 @@ function setupMobileMenu() {
         try { console.debug('[menu-movil] init', { index: idx }); } catch {}
 
         let lastToggleTs = 0;
+        let lastOpenTs = 0;
         const toggleMenu = (e) => {
             if (e) { e.preventDefault(); e.stopPropagation(); }
             const now = Date.now();
@@ -115,10 +116,22 @@ function setupMobileMenu() {
             // Refuerzo visual: controlar display explícitamente por si algún CSS lo sobrescribe
             if (menuContent) {
                 if (menuContainer.classList.contains('active')) {
+                    // Forzar visibilidad y stacking
                     menuContent.style.display = 'flex';
                     menuContent.style.flexDirection = 'column';
+                    menuContent.style.visibility = 'visible';
+                    menuContent.style.opacity = '1';
+                    menuContent.style.pointerEvents = 'auto';
+                    menuContent.style.zIndex = '9999';
+                    menuContent.style.position = 'absolute';
+                    menuContent.style.top = '100%';
+                    menuContent.style.right = '0';
+                    lastOpenTs = now;
                 } else {
                     menuContent.style.display = 'none';
+                    menuContent.style.visibility = 'hidden';
+                    menuContent.style.opacity = '0';
+                    menuContent.style.pointerEvents = 'none';
                 }
             }
         };
@@ -145,8 +158,16 @@ function setupMobileMenu() {
 
         // Cerrar al hacer clic fuera (uno por menú)
         document.addEventListener('click', (e) => {
+            // Pequeño guard para no cerrar inmediatamente tras abrir por bubbling en móviles
+            if (Date.now() - lastOpenTs < 200) return;
             if (!menuContainer.contains(e.target)) {
                 menuContainer.classList.remove('active');
+                if (menuContent) {
+                    menuContent.style.display = 'none';
+                    menuContent.style.visibility = 'hidden';
+                    menuContent.style.opacity = '0';
+                    menuContent.style.pointerEvents = 'none';
+                }
             }
         });
     });
