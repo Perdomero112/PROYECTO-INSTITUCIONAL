@@ -106,13 +106,28 @@
     </header>
     <main>
         <div class="usuarios-container">
+        <!-- Buscador de usuarios -->
+        <div class="search-container">
+            <form action="/usuarios" method="GET" class="search-form">
+                <div class="search-inputs">
+                    <div class="search-field">
+                        <label for="buscador-usuarios">Término de búsqueda</label>
+                        <input type="search" name="q" id="buscador-usuarios" placeholder="Buscar por ID, documento, nombre o teléfono..." value="<%= typeof terminoBusqueda !== 'undefined' ? terminoBusqueda : '' %>">
+                    </div>
+                    <button id="btn-buscar-usuarios" type="submit" class="search-btn">Buscar</button>
+                    <% if (terminoBusqueda) { %>
+                        <a href="/usuarios" class="clear-btn">Limpiar</a>
+                    <% } %>
+                </div>
+            </form>
+        </div>
         <div class="usuarios-table-container">
         <table class="usuarios-table">
             <thead>
                 <td>ID USUARIO</td>
                 <td>DOCUMENTO</td>
                 <td>NOMBRE</td>
-                <% if (user && user.rol === 'estudiante') { %>
+                <% if (user && user.rol === 'estudiante' || user.rol === 'admin') { %>
                 <td>GRADO</td>
                 <% } %>                                 
                 <td>TELEFONO</td>
@@ -126,15 +141,20 @@
                     <td><%= usuario.id_usr %></td>
                     <td><%= usuario.docum_usr %></td>
                     <td><%= usuario.nombre_usr %></td>
-                    <% if (user && user.rol === 'estudiante') { %>
-                    <td><%= usuario.grado_std %></td>
+                    <% if (user && user.rol === 'estudiante' || user.rol === 'admin') { %>
+                    <td><%= (usuario.grado_std ? usuario.grado_std : 'N/A') + (usuario.curso_std ? '-' + usuario.curso_std : '') %></td>
                     <% } %>
                     <td><%= usuario.telefono_usr %></td>
                     <td><%= usuario.gmail_usr %></td>
                     <td><%= usuario.rol %></td>
                     <td>
-                        <a href="/usuarios/<%= usuario.id_usr %>"><img src="/upload/edit_icon.png" alt="editar"></a>
-                        <a href="/usuarios/<%= usuario.id_usr %>"><img src="/upload/delete_icon.png" alt="eliminar"></a>
+                        <% if (user.rol === 'admin') { %>
+                        <form action="/usuarios/eliminar/<%= usuario.id_usr %>" method="post" onsubmit="return confirm('¿Eliminar al usuario &quot;<%= usuario.nombre_usr %>&quot; (ID <%= usuario.id_usr %>)?');" style="display:inline;">
+                            <button type="submit" class="btn-eliminar" title="Eliminar">
+                                <img src="/upload/delete_icon.png" alt="eliminar">
+                            </button>
+                        </form>
+                        <% } %>
                     </td>
                 </tr>
                 <% }) %>
@@ -151,14 +171,19 @@
                         <div class="card-row"><span class="card-label">Documento</span><span class="card-value"><%= usuario.docum_usr %></span></div>
                         <div class="card-row"><span class="card-label">Nombre</span><span class="card-value"><%= usuario.nombre_usr %></span></div>
                         <% if (user && user.rol === 'estudiante') { %>
-                        <div class="card-row"><span class="card-label">Grado</span><span class="card-value"><%= usuario.grado_std %></span></div>
+                        <div class="card-row"><span class="card-label">Grado</span><span class="card-value"><%= (usuario.grado_std ? usuario.grado_std : 'N/A') + (usuario.curso_std ? '-' + usuario.curso_std : '') %></span></div>
                         <% } %>
                         <div class="card-row"><span class="card-label">Teléfono</span><span class="card-value"><%= usuario.telefono_usr %></span></div>
                         <div class="card-row"><span class="card-label">Email</span><span class="card-value"><%= usuario.gmail_usr %></span></div>
                         <div class="card-row"><span class="card-label">Rol</span><span class="card-value"><%= usuario.rol %></span></div>
                         <div class="card-actions">
-                            <a class="btn-editar" href="/usuarios/<%= usuario.id_usr %>"><img src="/upload/edit_icon.png" alt="editar"></a>
-                            <a class="btn-eliminar" href="/usuarios/<%= usuario.id_usr %>"><img src="/upload/delete_icon.png" alt="eliminar"></a>
+                            <% if (user.rol === 'admin') { %>
+                            <form action="/usuarios/eliminar/<%= usuario.id_usr %>" method="post" onsubmit="return confirm('¿Eliminar al usuario &quot;<%= usuario.nombre_usr %>&quot; (ID <%= usuario.id_usr %>)?');" style="display:inline;">
+                                <button type="submit" class="btn-eliminar" title="Eliminar">
+                                    <img src="/upload/delete_icon.png" alt="eliminar">
+                                </button>
+                            </form>
+                            <% } %>
                         </div>
                     </div>
                 <% }); %>

@@ -18,14 +18,16 @@ ruta.get("/prestamos", tipoUsuario, sessionMiddleware, async (req, res) => {
                                 p.cantidad_prest,
                                 p.estado,
                                 l.nombre as nombre_libro,
-                                u.nombre_usr,
-                                u.rol
+                                u.nombre_usr AS nombre_usr,
+                                u.rol,
+                                u.grado_std AS grado,
+                                u.curso_std AS curso
                                 FROM prestamos p
                                 LEFT JOIN libros l ON p.id_libro = l.id_libro
                                 LEFT JOIN usuarios u ON p.id_usr = u.id_usr
                                 ORDER BY p.id_prest DESC`;
         } else {
-            // Si es usuario normal, mostrar solo sus préstamos
+            // Si es usuario normal, mostrar solo sus préstamos, incluyendo su nombre
             prestamos = `SELECT 
                                 p.id_prest,
                                 p.id_usr,
@@ -34,9 +36,13 @@ ruta.get("/prestamos", tipoUsuario, sessionMiddleware, async (req, res) => {
                                 p.observacion,
                                 p.cantidad_prest,
                                 p.estado,
-                                l.nombre as nombre_libro
+                                l.nombre AS nombre_libro,
+                                u.nombre_usr AS nombre_usr,
+                                u.grado_std AS grado,
+                                u.curso_std AS curso
                                 FROM prestamos p
                                 LEFT JOIN libros l ON p.id_libro = l.id_libro
+                                LEFT JOIN usuarios u ON p.id_usr = u.id_usr
                                 WHERE p.id_usr = ?
                                 ORDER BY p.id_prest DESC`;
         }
@@ -115,7 +121,7 @@ ruta.post("/solicitarPrestamo", tipoUsuario, sessionMiddleware, async (req, res)
 //Ruta para aceptar prestamo
 ruta.post("/aceptarPrestamo/:id", tipoUsuario, sessionMiddleware, async (req, res) => {
     const idPrestamo = req.params.id;
-    const { idLibro } = req.body;
+    const { idLibro, observacion } = req.body;
     const fechaAceptacion = new Date();
     const estado = "en prestamo";
     
@@ -135,12 +141,12 @@ ruta.post("/aceptarPrestamo/:id", tipoUsuario, sessionMiddleware, async (req, re
         const cantidadPrestamo = prestamoResults[0].cantidad_prest;
         const libroId = prestamoResults[0].id_libro;
         
-        // Actualizar el estado del préstamo a "en prestamo"
-        const sql = "UPDATE prestamos SET estado = ?, fecha = ? WHERE id_prest = ?";
+        // Actualizar el estado del préstamo a "en prestamo" y guardar observación si viene
+        const sql = "UPDATE prestamos SET estado = ?, fecha = ?, observacion = COALESCE(?, observacion) WHERE id_prest = ?";
         // Restar la cantidad correcta del libro
         const sql2 = "UPDATE libros SET cantidad = cantidad - ? WHERE id_libro = ?";
         
-        db.query(sql, [estado, fechaAceptacion, idPrestamo], (err, results) => {
+        db.query(sql, [estado, fechaAceptacion, observacion || null, idPrestamo], (err, results) => {
             if (err) {
                 console.log("Error al aceptar préstamo:", err);
                 return res.status(500).json({ error: "Error al aceptar el préstamo" });
@@ -252,15 +258,12 @@ ruta.get("/buscarPrestamo", tipoUsuario, sessionMiddleware, async (req, res) => 
         }
     }
     
-    // Búsqueda por término
+    // Búsqueda por término (usar OR entre los campos buscables)
     if (terminoBusqueda) {
-        if (req.session.user.rol === 'admin') {
-            whereConditions.push("(l.nombre LIKE ? OR u.nombre_usr LIKE ? OR p.observacion LIKE ?)");
-            queryParams.push(`%${terminoBusqueda}%`, `%${terminoBusqueda}%`, `%${terminoBusqueda}%`);
-        } else {
-            whereConditions.push("(l.nombre LIKE ? OR p.observacion LIKE ?)");
-            queryParams.push(`%${terminoBusqueda}%`, `%${terminoBusqueda}%`);
-        }
+        const termLike = `%${terminoBusqueda}%`;
+        // Grupo OR: id de préstamo, nombre del libro, nombre del estudiante, observación
+        whereConditions.push("(CAST(p.id_prest AS CHAR) LIKE ? OR l.nombre LIKE ? OR u.nombre_usr LIKE ? OR p.observacion LIKE ?)");
+        queryParams.push(termLike, termLike, termLike, termLike);
     }
     
     let prestamosBusqueda;
@@ -274,8 +277,10 @@ ruta.get("/buscarPrestamo", tipoUsuario, sessionMiddleware, async (req, res) => 
                             p.cantidad_prest,
                             p.estado,
                             l.nombre as nombre_libro,
-                            u.nombre_usr,
-                            u.rol
+                            u.nombre_usr AS nombre_usr,
+                            u.rol,
+                            u.grado_std AS grado,
+                            u.curso_std AS curso
                             FROM prestamos p
                             LEFT JOIN libros l ON p.id_libro = l.id_libro
                             LEFT JOIN usuarios u ON p.id_usr = u.id_usr`;
@@ -288,9 +293,13 @@ ruta.get("/buscarPrestamo", tipoUsuario, sessionMiddleware, async (req, res) => 
                             p.observacion,
                             p.cantidad_prest,
                             p.estado,
-                            l.nombre as nombre_libro
+                            l.nombre as nombre_libro,
+                            u.nombre_usr AS nombre_usr,
+                            u.grado_std AS grado,
+                            u.curso_std AS curso
                             FROM prestamos p
-                            LEFT JOIN libros l ON p.id_libro = l.id_libro`;
+                            LEFT JOIN libros l ON p.id_libro = l.id_libro
+                            LEFT JOIN usuarios u ON p.id_usr = u.id_usr`;
     }
     
     if (whereConditions.length > 0) {

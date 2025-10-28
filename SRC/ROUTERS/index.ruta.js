@@ -8,13 +8,14 @@ ruta.get("/", sessionMiddleware, tipoUsuario, (req, res) => {
     // Consultas paralelas para obtener todos los datos necesarios
     const queries = {
         librosAletorios: "SELECT * FROM libros ORDER BY RAND() LIMIT 3",
-        librosPorCategoria: "SELECT categoria FROM libros ORDER BY RAND() LIMIT 3",
+        // Nota: librosPorCategoria se resolverá en dos pasos: escoger 1 categoría y luego 3 libros de esa categoría.
         usuarios: "SELECT * FROM usuarios",
         roles: "SELECT DISTINCT rol FROM usuarios"
     };
 
     let completedQueries = 0;
-    const totalQueries = Object.keys(queries).length;
+    // totalQueries cuenta: librosAletorios, usuarios, roles y (librosPorCategoria final)
+    const totalQueries = Object.keys(queries).length + 1;
     const results = {};
 
     // Función para verificar si todas las consultas han terminado
@@ -32,6 +33,7 @@ ruta.get("/", sessionMiddleware, tipoUsuario, (req, res) => {
                 usuarios: results.usuarios || [],
                 roles: results.roles || [],
                 user: req.session.user,
+                categoriaSeleccionada: results.categoriaSeleccionada || null,
                 success: success,
                 error: error
             });
@@ -50,16 +52,34 @@ ruta.get("/", sessionMiddleware, tipoUsuario, (req, res) => {
         checkAllQueriesComplete();
     });
 
-    // Ejecutar consulta de libros por categoría
-    db.query(queries.librosPorCategoria, (err, libros) => {
+    // Seleccionar UNA categoría aleatoria y luego 3 libros de esa categoría
+    const categoriaSql = "SELECT DISTINCT categoria FROM libros WHERE categoria IS NOT NULL AND categoria <> '' ORDER BY RAND() LIMIT 1";
+    db.query(categoriaSql, (err, filasCat) => {
         if (err) {
-            console.log("Error al obtener libros por categoría:", err);
+            console.log("Error al obtener categoría aleatoria:", err);
+            results.categoriaSeleccionada = null;
             results.librosPorCategoria = [];
-        } else {
-            console.log("Libros por categoría obtenidos:", libros.length);
-            results.librosPorCategoria = libros || [];
+            return checkAllQueriesComplete();
         }
-        checkAllQueriesComplete();
+        const categoria = filasCat && filasCat.length ? filasCat[0].categoria : null;
+        results.categoriaSeleccionada = categoria;
+
+        if (!categoria) {
+            results.librosPorCategoria = [];
+            return checkAllQueriesComplete();
+        }
+
+        const librosPorCatSql = "SELECT id_libro, nombre, autor, imagen, cantidad, categoria FROM libros WHERE categoria = ? ORDER BY RAND() LIMIT 3";
+        db.query(librosPorCatSql, [categoria], (err2, libros) => {
+            if (err2) {
+                console.log("Error al obtener libros por categoría seleccionada:", err2);
+                results.librosPorCategoria = [];
+            } else {
+                console.log(`Libros obtenidos de la categoría '${categoria}':`, libros.length);
+                results.librosPorCategoria = libros || [];
+            }
+            checkAllQueriesComplete();
+        });
     });
 
     // Ejecutar consulta de usuarios

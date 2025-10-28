@@ -303,10 +303,7 @@
                         <label for="fecha">Fecha de Entrega:</label>
                         <input type="date" id="fecha" name="fecha" required>
                     </div>
-                    <div>
-                        <label for="observacion">Observación:</label>
-                        <textarea id="observacion" name="observacion" rows="3" placeholder="Ingrese observaciones adicionales..."></textarea>
-                    </div>
+                    
                     <% if (user && user.rol === 'docente') { %>
                         <div>
                             <label for="cantidad">Cantidad (máximo <%= libro.cantidad %>):</label>

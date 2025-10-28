@@ -137,6 +137,12 @@ function setupPrestamoActions() {
                 }
                 
                 setTimeout(() => {
+                    // Copiar observación del modal al input oculto antes de enviar
+                    const obsField = form.querySelector('input[name="observacion"]');
+                    const modalObs = document.getElementById('modalObservacion');
+                    if (obsField && modalObs) {
+                        obsField.value = modalObs.value.trim();
+                    }
                     // Enviar el formulario directamente
                     form.submit();
                 }, 800);

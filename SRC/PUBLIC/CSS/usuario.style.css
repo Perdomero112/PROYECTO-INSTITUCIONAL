@@ -4,6 +4,110 @@
     box-sizing: border-box;
 }
 
+/* ====== Buscador unificado (igual a otras vistas) ====== */
+.search-container {
+    max-width: 800px;
+    margin: 0 auto 2rem auto;
+    padding: 2rem;
+    background: linear-gradient(135deg, #ffffff 0%, #fafafa 100%);
+    border-radius: 20px;
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    border: 1px solid rgba(220, 38, 38, 0.08);
+    position: relative;
+    overflow: hidden;
+}
+
+.search-container::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, #dc2626, #ef4444, #f87171);
+    border-radius: 20px 20px 0 0;
+}
+
+.search-form { width: 100%; }
+
+.search-inputs {
+    display: flex;
+    gap: 1rem;
+    align-items: end;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.search-field { flex: 1; min-width: 220px; max-width: 400px; }
+
+.search-field label {
+    display: block;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #374151;
+    margin-bottom: 0.5rem;
+}
+
+.search-field input {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    border: 2px solid #e5e7eb;
+    border-radius: 12px;
+    font-size: 0.9rem;
+    transition: all 0.3s ease;
+    background: #ffffff;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+}
+
+.search-field input:focus {
+    outline: none;
+    border-color: #dc2626;
+    box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.1), 0 4px 12px rgba(220, 38, 38, 0.15);
+    transform: translateY(-1px);
+}
+
+.search-btn {
+    padding: 0.75rem 2rem;
+    background: linear-gradient(135deg, #dc2626, #b91c1c);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    height: fit-content;
+    box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
+}
+
+.search-btn:hover {
+    background: linear-gradient(135deg, #b91c1c, #991b1b);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(220, 38, 38, 0.4);
+}
+
+.clear-btn {
+    padding: 0.75rem 2rem;
+    background: linear-gradient(135deg, #f8fafc, #e2e8f0);
+    color: #64748b;
+    text-decoration: none;
+    border-radius: 12px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    height: fit-content;
+    border: 1px solid #cbd5e1;
+    box-shadow: 0 2px 8px rgba(100, 116, 139, 0.1);
+}
+
+.clear-btn:hover {
+    background: linear-gradient(135deg, #e2e8f0, #cbd5e1);
+    color: #475569;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(100, 116, 139, 0.2);
+}
+
 
 body {
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;

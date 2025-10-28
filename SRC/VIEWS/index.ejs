@@ -113,19 +113,6 @@
             <div class="textos">
                 <h1>BIENVENIDO A NUESTRA BIBLIOTECA INSTITUCIONAL</h1>
                 <p>Descubre, aprende y explora con nuestra colección de libros</p>
-                
-                <!-- Mostrar mensajes de éxito o error -->
-                <% if (typeof success !== 'undefined' && success) { %>
-                    <div class="alert alert-success">
-                        <span>✅ <%= success %></span>
-                    </div>
-                <% } %>
-                
-                <% if (typeof error !== 'undefined' && error) { %>
-                    <div class="alert alert-error">
-                        <span>❌ <%= error %></span>
-                    </div>
-                <% } %>
                 al alcance de tus manos<br>
                 Braulio Gonzalez sede centro</p>
                 <% if (user && user.rol === 'admin') { %>
@@ -173,86 +160,49 @@
                                                 <span class="libro-cantidad">Stock: <%= libro.cantidad %></span>
                                             </div>
                                         </div>
-                                        
-                                    </a>
-                                    
-                                </div>
-                            <% }); %>
-                        </div>
-                    </div>
-
-                    <!-- Sección Populares -->
-                    <div id="populares" class="filter-section">
-                        <div class="section-header">
-                            <h3>Libros Populares</h3>
-                            <p>Los más leídos y recomendados</p>
-                        </div>
-                        <div class="libros-grid">
-                            <% librosAletorios.forEach(libro => { %>
-                                <div class="libro-card" data-id="<%= libro.id_libro %>">
-                                    <a href="infolibro/<%= libro.id_libro %>">
-                                        <div class="libro-imagen">
-                                            <% if (libro.imagen) { %>
-                                                <img src="/upload/<%= libro.imagen %>" alt="<%= libro.nombre %>" >
-                                            <% } else { %>
-                                                <div class="placeholder-imagen">
-                                                    <span>📚</span>
-                                                </div>
-                                            <% } %> 
-                                        </div>
-                                        <div class="libro-info">
-                                            <h4 class="libro-titulo"><%= libro.nombre %></h4>
-                                            <p class="libro-autor">por <%= libro.autor %></p>
-                                            <div class="libro-details">
-                                                <span class="libro-categoria"><%= libro.categoria %></span>
-                                                <span class="libro-cantidad">Stock: <%= libro.cantidad %></span>
-                                            </div>
-                                        </div>
-                                        
                                     </a>
                                 </div>
                             <% }); %>
                         </div>
                     </div>
-
                     <!-- Sección Por Categoría -->
                     <div id="categoria" class="filter-section">
                         <div class="section-header">
-                            <h3>Por Categoría</h3>
-                            <p>Libros organizados por temática</p>
+                            <h3>Por Categoría <%= categoriaSeleccionada ? '(' + categoriaSeleccionada + ')' : '' %></h3>
+                            <p><%= categoriaSeleccionada ? 'Mostrando hasta 3 libros de la categoría seleccionada' : 'Libros organizados por temática' %></p>
                         </div>
-                        <div class="libros-grid">
-                            <% librosPorCatalogo.forEach(libro => { %>
-                                <div class="libro-card">
-                                    <a href="infolibro/<%= libro.id_libro %>">
-                                        <div class="libro-imagen">
-                                            <% if (libro.imagen) { %>
-                                                <img src="/upload/<%= libro.imagen %>" alt="<%= libro.nombre %>" >
-                                            <% } else { %>
-                                                <div class="placeholder-imagen">
-                                                    <span>📚</span>
-                                                </div>
-                                            <% } %> 
-                                        </div>
-                                        <div class="libro-info">
-                                            <h4 class="libro-titulo"><%= libro.nombre %></h4>
-                                            <p class="libro-autor">por <%= libro.autor %></p>
-                                            <div class="libro-details">
-                                                <span class="libro-categoria"><%= libro.categoria %></span>
-                                                <span class="libro-cantidad">Stock: <%= libro.cantidad %></span>
+                        <% if (librosPorCatalogo && librosPorCatalogo.length) { %>
+                            <div class="libros-grid">
+                                <% librosPorCatalogo.forEach(libro => { %>
+                                    <div class="libro-card">
+                                        <a href="infolibro/<%= libro.id_libro %>">
+                                            <div class="libro-imagen">
+                                                <% if (libro.imagen) { %>
+                                                    <img src="/upload/<%= libro.imagen %>" alt="<%= libro.nombre %>">
+                                                <% } else { %>
+                                                    <div class="placeholder-imagen">
+                                                        <span>📚</span>
+                                                    </div>
+                                                <% } %>
                                             </div>
-                                        </div>
-                                        
-                                    </a>
-                                </div>
-                            <% }); %>
-                        </div>
+                                            <div class="libro-info">
+                                                <h4 class="libro-titulo"><%= libro.nombre %></h4>
+                                                <p class="libro-autor">por <%= libro.autor %></p>
+                                                <div class="libro-details">
+                                                    <span class="libro-categoria"><%= libro.categoria %></span>
+                                                    <span class="libro-cantidad">Stock: <%= libro.cantidad %></span>
+                                                </div>
+                                            </div>
+                                        </a>
+                                    </div>
+                                <% }); %>
+                            </div>
+                        <% } else { %>
+                            <div class="alert alert-error">
+                                <span>No se encontraron libros para la categoría seleccionada.</span>
+                            </div>
+                        <% } %>
                     </div>
-                </div>
-
-                <!-- Botón para ver más -->
-                <div class="ver-mas-container">
-                    <a href="/catalogoLibros" class="btn-ver-mas"><img src="/upload/catalogo_book_icon.png" alt="catalogo-img">explorar catalogo</a>
                 </div>
             </div>
         </section>

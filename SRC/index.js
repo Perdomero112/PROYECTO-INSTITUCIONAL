@@ -18,9 +18,16 @@ app.use(session({
 //configuración VIEWS
 app.set("view engine","ejs");
 app.set("views", path.join(__dirname, "VIEWS"));
+// Desactivar cache de vistas para desarrollo
+app.disable('view cache');
 
-//CONFIGURACIÓN 
+//CONFIGURACIÓN
 app.use(express.static(path.join(__dirname,"PUBLIC")));
+// Evitar cache de respuestas HTML en desarrollo
+app.use((req, res, next) => {
+  res.set('Cache-Control', 'no-store');
+  next();
+});
 app.use(methodOverride("_method"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));

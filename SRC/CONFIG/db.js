@@ -3,24 +3,21 @@ const dotenv = require("dotenv");
 
 dotenv.config();
 
+// Configuración priorizando variables de entorno y valores por defecto.
+// Usar process.env para permitir configuración en la VPS / producción.
 const conexion = mysql.createConnection({
-    host: process.env.DB_HOST || "31.97.133.12",
-    database: process.env.DB_NAME || "biblioteca_ie-bg",
-    user: process.env.DB_USER || "root",
-    password: process.env.DB_PASSWORD || "Perdomero-11",
-    port: process.env.DB_PORT ? parseInt(process.env.DB_PORT, 10) : 3306,
-    multipleStatements: false
+    host: process.env.DB_HOST || 'localhost',
+    database: process.env.DB_DATABASE || 'biblioteca_ie-bg',
+    user: process.env.DB_USER || 'root',
+    password: process.env.DB_PASSWORD || '',
+    port: process.env.DB_PORT ? Number(process.env.DB_PORT) : 3306,
 });
 
 conexion.connect((err) => {
     if (err) {
-        console.log(
-            `Hubo un problema al conectar con la base de datos: ${err}`
-        );
+        console.log(`Hubo un problema al conectar con la base de datos: ${err}`);
     } else {
-        console.log(
-            `Conectado a la base de datos en ${conexion.config.host}:${conexion.config.port} (DB: ${conexion.config.database})`
-        );
+        console.log(`Conectado a la base de datos en ${conexion.config.host}:${conexion.config.port} (DB: ${conexion.config.database})`);
     }
 });
 

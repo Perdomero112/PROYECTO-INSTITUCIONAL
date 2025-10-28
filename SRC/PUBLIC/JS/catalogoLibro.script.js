@@ -267,12 +267,7 @@ function setupAnimations() {
     }
 }
 
-// Mensaje de bienvenida
-window.addEventListener('load', () => {
-    setTimeout(() => {
-        showNotification('🎉 ¡Bienvenido a la Biblioteca Institucional!', 'success');
-    }, 1000);
-});
+// Mensaje de bienvenida deshabilitado
 
 // Manejar errores globalmente
 window.addEventListener('error', (e) => {

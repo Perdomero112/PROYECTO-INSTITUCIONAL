@@ -5,35 +5,32 @@ dotenv.config();
 
 // Crear transporter con configuración más robusta
 const transporte = nodemailer.createTransport({
-    host: process.env.EMAIL_HOST || "smtp.gmail.com",
-    port: process.env.EMAIL_PORT ? parseInt(process.env.EMAIL_PORT, 10) : 587,
-    secure: (process.env.EMAIL_SECURE || "false").toLowerCase() === "true", // true para 465, false para otros puertos
-    auth: {
-        user: process.env.EMAIL_USER || "",
-        pass: process.env.EMAIL_PASS || ""
-    },
-    tls: {
-        rejectUnauthorized: false
-    }
+ host: process.env.EMAIL_HOST || 'smtp.gmail.com',
+ port: process.env.EMAIL_PORT ? Number(process.env.EMAIL_PORT) : 587,
+ secure: process.env.EMAIL_SECURE === 'true' || false,
+ auth: {
+     user: process.env.EMAIL_USER || 'bibliotecaappbg00@gmail.com',
+     pass: process.env.EMAIL_PASS || ''
+ }
 });
 
 // Verificar la conexión
 transporte.verify(function(error, success) {
-    if (error) {
-        console.error("Error en la configuración de email:", error);
-    } else {
-        console.log("Servidor de email listo para enviar mensajes");
-    }
+  if (error) {
+    console.error("Error en la configuración de email:", error);
+  } else {
+    console.log("Servidor de email listo para enviar mensajes");
+  }
 });
 
 async function enviarCodigo(email, codigo) {
     try {
         console.log("Intentando enviar email a:", email);
         console.log("Código a enviar:", codigo);
-        const fromAddress = process.env.EMAIL_USER ? `"BIBLIOTECABG" <${process.env.EMAIL_USER}>` : '"BIBLIOTECABG" <no-reply@example.com>';
+        
 
         const info = await transporte.sendMail({
-            from: fromAddress,
+            from: "bibliotecaappbg00@gmail.com",
             to: email,
             subject: "Código para recuperar contraseña",
             text: `Tu código de recuperación es: ${codigo}`,

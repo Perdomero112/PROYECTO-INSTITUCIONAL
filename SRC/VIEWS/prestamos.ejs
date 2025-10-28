@@ -136,6 +136,27 @@
         .btn-cancelar-modal:hover {
             background: #e5e7eb;
         }
+
+        /* Columnas compactas para GRADO */
+        th.col-grado,
+        td.col-grado,
+        th.estudiante-grado,
+        td.estudiante-grado {
+            width: 70px;
+            min-width: 60px;
+            max-width: 80px;
+            white-space: nowrap;
+            text-align: center;
+        }
+
+        /* Libro un poco más grande */
+        th.col-libro,
+        td.col-libro,
+        th.estudiante-libro,
+        td.estudiante-libro {
+            font-size: 1.05rem;
+            font-weight: 600;
+        }
     </style>
     <title>PRESTAMOS</title>
     
@@ -243,18 +264,6 @@
     <main>
         <h1>PRÉSTAMOS</h1>
         
-        <!-- Mostrar mensajes de éxito o error -->
-        <% if (typeof success !== 'undefined' && success) { %>
-            <div class="alert alert-success">
-                <span>✅ <%= success %></span>
-            </div>
-        <% } %>
-        
-        <% if (typeof error !== 'undefined' && error) { %>
-            <div class="alert alert-error">
-                <span>❌ <%= error %></span>
-            </div>
-        <% } %>
         <!-- Sección de búsqueda en la parte superior -->
         <div class="search-container">
             <form action="/buscarPrestamo" method="GET" class="search-form">
@@ -262,7 +271,7 @@
                     <div class="search-field">
                         <label for="buscador">Término de búsqueda</label>
                         <input type="search" name="q" id="buscador" 
-                               placeholder="Buscar..."
+                               placeholder="Buscar por ID, libro o nombre..."
                                value="<%= typeof terminoBusqueda !== 'undefined' ? terminoBusqueda : '' %>">
                     </div>
 
@@ -298,9 +307,13 @@
             <thead>
                 <tr>
                     <th >ID PRÉSTAMO</th>
-                    <th>NOMBRE DEL ESTUDIANTE</th>
+                    
+                    <th>NOMBRE </th>
                     <th>ROL</th>
-                    <th>NOMBRE DEL LIBRO</th>
+                    <% if (user && user.rol === 'estudiante'    || user && user.rol === 'admin') { %>
+                    <th class="col-grado">GRADO</th>
+                    <% } %>
+                    <th class="col-libro">NOMBRE DEL LIBRO</th>
                     <th>FECHA DE ENTREGA</th>
                     <th>OBSERVACIÓN</th>
                     <th >CANTIDAD</th>
@@ -315,9 +328,14 @@
                             <% prestamos.forEach(p => { %>
                                 <tr>
                                 <td ><%= p.id_prest %></td>
+                                
                                 <td><%= p.nombre_usr || p.nombre || 'N/A' %></td>
                                 <td><%= p.rol || p.id_rol || 'N/A' %></td>
-                                <td><%= p.nombre_libro || p.nombre || p.titulo || 'N/A' %></td>
+                                <% if (user && user.rol === 'estudiante' || user && user.rol === 'admin') { %>
+                                <td class="col-grado"><%= (p.grado ? p.grado : 'N/A') + (p.curso ? '-' + p.curso : '') %></td>
+                                <% } %>
+                                <td class="col-libro"><%= p.nombre_libro %></td>
+                                
                                 <td><%= p.fecha ? new Date(p.fecha).toLocaleDateString() : 'N/A' %></td>
                                 <td><%= p.observacion || 'Sin observaciones' %></td>
                                 <td><%= p.cantidad_prest || 'N/A' %></td>
@@ -328,6 +346,7 @@
                                         <!--aceptar prestamo-->
                                         <form action="/aceptarPrestamo/<%= p.id_prest %>" method="post" class="form-aceptar-prestamo">
                                             <input type="hidden" name="idLibro" value="<%= p.id_libro %>">
+                                            <input type="hidden" name="observacion" value="">
                                             <button type="button" class="btn-aceptar" data-action="aceptar" data-prestamo-id="<%= p.id_prest %>" data-libro-nombre="<%= p.nombre_libro %>">ACEPTAR</button>
                                         </form>
                                         <% } %>
@@ -335,6 +354,7 @@
                                         <!--devolver prestamo-->
                                         <form action="/devolverPrestamo/<%= p.id_prest %>" method="post" class="form-devolver-prestamo">
                                             <input type="hidden" name="idLibro" value="<%= p.id_libro %>">
+                                            <input type="hidden" name="observacion" value="">
                                             <button type="button" class="btn-devolver" data-action="devolver" data-prestamo-id="<%= p.id_prest %>" data-libro-nombre="<%= p.nombre_libro %>">DEVOLVER</button>
                                         </form>
                                         <% } %>
@@ -364,7 +384,7 @@
                     <div class="card-row"><span class="card-label">ID Préstamo</span><span class="card-value"><%= p.id_prest %></span></div>
                     <div class="card-row"><span class="card-label">Estudiante</span><span class="card-value"><%= p.nombre_usr || p.nombre || 'N/A' %></span></div>
                     <div class="card-row"><span class="card-label">Rol</span><span class="card-value"><%= p.rol || p.id_rol || 'N/A' %></span></div>
-                    <div class="card-row"><span class="card-label">Libro</span><span class="card-value"><%= p.nombre_libro || p.nombre || p.titulo || 'N/A' %></span></div>
+                    <div class="card-row"><span class="card-label">Libro</span><span class="card-value"><%= p.nombre_libro %></span></div>
                     <div class="card-row"><span class="card-label">Fecha</span><span class="card-value"><%= p.fecha ? new Date(p.fecha).toLocaleDateString() : 'N/A' %></span></div>
                     <div class="card-row"><span class="card-label">Obs.</span><span class="card-value"><%= p.observacion || 'Sin observaciones' %></span></div>
                     <div class="card-row"><span class="card-label">Cant.</span><span class="card-value"><%= p.cantidad_prest || 'N/A' %></span></div>
@@ -398,7 +418,11 @@
                 <thead>
                     <tr>
                         <th class="estudiante-id">ID</th>
+                        <th class="estudiante-nombre">NOMBRE</th>
                         <th class="estudiante-libro">NOMBRE DEL LIBRO</th>
+                        <% if (user && user.rol === 'estudiante') { %>
+                        <th class="estudiante-grado">GRADO</th>
+                        <% } %>
                         <th class="estudiante-fecha">FECHA</th>
                         <th class="estudiante-obs">OBSERVACIÓN</th>
                         <th class="estudiante-cant">CANT.</th>
@@ -410,7 +434,11 @@
                         <% prestamos.forEach(p => { %>
                             <tr>
                             <td class="estudiante-id"><%= p.id_prest %></td>
-                            <td class="estudiante-libro"><%= p.nombre_libro || p.nombre || p.titulo || 'N/A' %></td>
+                            <td class="estudiante-nombre"><%= p.nombre_usr || (user && user.nombre) || 'N/A' %></td>
+                            <td class="estudiante-libro"><%= p.nombre_libro %></td>
+                            <% if (user && user.rol === 'estudiante') { %>
+                            <td class="estudiante-grado"><%= (user.grado ? user.grado : 'N/A') + (user.curso ? '-' + user.curso : '') %></td>
+                            <% } %>
                             <td class="estudiante-fecha"><%= p.fecha ? new Date(p.fecha).toLocaleDateString() : 'N/A' %></td>
                             <td class="estudiante-obs"><%= p.observacion || 'Sin observaciones' %></td>
                             <td class="estudiante-cant"><%= p.cantidad_prest || 'N/A' %></td>
@@ -431,7 +459,7 @@
                     <% prestamos.forEach(p => { %>
                     <div class="card">
                         <div class="card-row"><span class="card-label">ID</span><span class="card-value"><%= p.id_prest %></span></div>
-                        <div class="card-row"><span class="card-label">Libro</span><span class="card-value"><%= p.nombre_libro || p.nombre || p.titulo || 'N/A' %></span></div>
+                        <div class="card-row"><span class="card-label">Libro</span><span class="card-value"><%= p.nombre_libro %></span></div>
                         <div class="card-row"><span class="card-label">Fecha</span><span class="card-value"><%= p.fecha ? new Date(p.fecha).toLocaleDateString() : 'N/A' %></span></div>
                         <div class="card-row"><span class="card-label">Obs.</span><span class="card-value"><%= p.observacion || 'Sin observaciones' %></span></div>
                         <div class="card-row"><span class="card-label">Cant.</span><span class="card-value"><%= p.cantidad_prest || 'N/A' %></span></div>
@@ -451,6 +479,10 @@
             <div class="modal-icon" id="modalIcon">⚠️</div>
             <h3 class="modal-title" id="modalTitle">Confirmar acción</h3>
             <p class="modal-message" id="modalMessage">¿Estás seguro de realizar esta acción?</p>
+            <div class="modal-observacion" style="margin: 0 0 1rem 0;">
+                <label for="modalObservacion" style="display:block; margin-bottom: 0.5rem; color:#374151;">Observaciones (opcional)</label>
+                <textarea id="modalObservacion" rows="3" placeholder="Escribe una observación para este movimiento..." style="width:100%; padding:0.75rem; border:1px solid #e5e7eb; border-radius:8px; resize: vertical;"></textarea>
+            </div>
             <div class="modal-buttons">
                 <button class="btn-confirmar" id="btnConfirmar">Confirmar</button>
                 <button class="btn-cancelar-modal" id="btnCancelar">Cancelar</button>
