@@ -145,6 +145,7 @@ function setupMobileMenu() {
 
         menuBtn.addEventListener('click', toggleMenu);
         menuBtn.addEventListener('touchend', toggleMenu, { passive: false });
+        menuBtn.addEventListener('pointerup', toggleMenu);
 
         if (menuContent) {
             // Evitar que clics dentro del menú cierren inmediatamente por el listener global
@@ -190,6 +191,41 @@ function setupMobileMenu() {
             }
         });
     });
+}
+
+// Fallback global: garantizar apertura del menú móvil en cualquier ruta (captura)
+if (!window.__menuGlobalFallback) {
+    window.__menuGlobalFallback = true;
+    document.addEventListener('click', (e) => {
+        const btn = e.target && typeof e.target.closest === 'function' ? e.target.closest('#btnMenuMobile') : null;
+        if (!btn) return;
+        const container = btn.closest('.menu-movil');
+        if (!container) return;
+        e.preventDefault();
+        e.stopPropagation();
+        container.classList.toggle('active');
+        const content = container.querySelector('.menu-content');
+        if (content) {
+            if (container.classList.contains('active')) {
+                content.style.display = 'flex';
+                content.style.visibility = 'visible';
+                content.style.opacity = '1';
+                content.style.pointerEvents = 'auto';
+                content.style.zIndex = '9999';
+                content.style.position = 'fixed';
+                const rect = btn.getBoundingClientRect();
+                content.style.top = Math.round(rect.bottom + 8) + 'px';
+                content.style.left = Math.max(12, Math.round(rect.left)) + 'px';
+                content.style.maxWidth = '92vw';
+                content.style.minWidth = '220px';
+            } else {
+                content.style.display = 'none';
+                content.style.visibility = 'hidden';
+                content.style.opacity = '0';
+                content.style.pointerEvents = 'none';
+            }
+        }
+    }, true);
 }
 
 // Mover el modal de perfil al <body> para evitar problemas de stacking/overflow en header/nav
