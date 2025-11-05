@@ -165,12 +165,6 @@ function setupMobileMenu() {
                     menuContent.style.visibility = 'hidden';
                     menuContent.style.opacity = '0';
                     menuContent.style.pointerEvents = 'none';
-                    if (overlayEl && overlayEl.parentNode) overlayEl.parentNode.removeChild(overlayEl);
-                    overlayEl = null;
-                    // restaurar portal
-                    if (placeholder && placeholder.parentNode && menuContent.parentNode === document.body) {
-                        placeholder.parentNode.insertBefore(menuContent, placeholder);
-                    }
                     if (href) {
                         setTimeout(() => { window.location.assign(href); }, 0);
                     }
@@ -376,8 +370,10 @@ function hideAlert(alert) {
 
 // Manejar errores globalmente
 window.addEventListener('error', (e) => {
-    console.error('Error:', e.error);
-    showNotification('❌ Ocurrió un error inesperado', 'error');
+    try { console.error('Error:', e.error || e.message || e); } catch {}
+    if (typeof showNotification === 'function') {
+        try { showNotification('❌ Ocurrió un error inesperado', 'error'); } catch {}
+    }
 });
 
 // (Se eliminó la inyección automática del botón de perfil móvil; ahora es estático en index.ejs)
