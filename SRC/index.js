@@ -33,6 +33,45 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 
+// SEO: robots.txt y sitemap.xml
+app.get('/robots.txt', (req, res) => {
+  const baseUrl = `${req.protocol}://${req.get('host')}`;
+  res.type('text/plain').send(
+`User-agent: *
+Allow: /
+Sitemap: ${baseUrl}/sitemap.xml
+`);
+});
+
+app.get('/sitemap.xml', async (req, res) => {
+  const baseUrl = `${req.protocol}://${req.get('host')}`;
+  const today = new Date().toISOString().slice(0, 10);
+  // Páginas principales conocidas. Para páginas dinámicas (infoLibro/:id) se puede extender
+  // generando URLs desde la base de datos si se requiere.
+  const urls = [
+    '/',
+    '/catalogoLibros',
+    '/prestamos',
+    '/usuarios',
+    '/registrarLibro'
+  ];
+
+  const urlset = urls.map(u => (
+`  <url>
+    <loc>${baseUrl}${u}</loc>
+    <lastmod>${today}</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>${u === '/' ? '1.0' : '0.8'}</priority>
+  </url>`)).join('\n');
+
+  const xml = `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+${urlset}
+</urlset>`;
+
+  res.type('application/xml').send(xml);
+});
+
 
 //RUTAS
 app.use(require("./ROUTERS/index.ruta.js"));//index
