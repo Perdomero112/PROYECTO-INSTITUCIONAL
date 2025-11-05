@@ -80,33 +80,6 @@
                 
                 
             </ul>
-            <!--menu_movil-->
-            <div class="menu-movil" id="menuMovil">
-                <button id="btnPerfilMobile" class="modal_perfil-btn btn-perfil-mobile" aria-label="Perfil"><img src="/upload/usr_login_icon.png" alt="perfil"></button>
-                <button id="btnMenuMobile"><img src="/upload/menu_icon.png" alt="menu-img"></button>
-                <div class="menu-content">
-                    <div class="bar1">
-                        <a href="/"><img src="/upload/home_icon-bg_black.png" alt="home-img">Inicio</a>
-                    </div>
-                    <div class="bar2">
-                        <a href="/catalogoLibros"><img src="/upload/catalogo_book_icon.png" alt="catalogo-img">Catálogo</a>
-                        <% if (user && user.rol === 'admin') { %>
-                            <a href="/registrarLibro"><img src="/upload/new_libro_icon.png" alt="libro-img">Registrar Libro</a>
-                            <a href="/prestamos"><img src="/upload/prestamo_usr_icon.png" alt="prestamo-img">Préstamos</a>
-                            <a href="/usuarios"><img src="/upload/user_ver_icon.png" alt="usr-img">Usuarios</a>
-                        <% } else if (user) { %>
-                            <a href="/prestamos"><img src="/upload/prestamo_usr_icon.png" alt="prestamo-img">Mis Préstamos</a>
-                        <% } %>
-                    </div>
-                    <div class="bar3">
-                        <% if (user) { %>
-                            <a href="/logout" class="btn-logout-movil"><img src="/upload/cerrar-session_icon.png" alt="logaut-img">Cerrar Sesión</a>
-                        <% } else { %>
-                            <a href="/login" class="btn-iniciar-sesion-movil">Iniciar Sesión</a>
-                        <% } %>
-                    </div>
-                </div>
-            </div>
         </nav>
     </header>
     <main>
