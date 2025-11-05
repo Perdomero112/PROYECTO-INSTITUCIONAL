@@ -1,11 +1,20 @@
 /* Asegurar que el dropdown del menú móvil quede bajo el overlay del modal */
 
 .menu-movil .menu-content {
- z-index: 1500;   min-width: 280px; /* evitar que se estreche y salten las opciones */
+ z-index: 3002;   min-width: 280px; /* evitar que se estreche y salten las opciones */
  max-width: calc(100vw - 24px); /* asegúrate de nunca superar el viewport */
  margin-inline: 12px; /* deja margen de seguridad a ambos lados */
  overflow-x: hidden; /* no permitir scroll horizontal en el dropdown */
 }
+
+/* Último refuerzo: priorizar click y stacking del menú móvil en catálogo */
+.menu-movil { position: relative; z-index: 3000; pointer-events: auto; }
+.menu-movil #btnMenuMobile { position: relative; z-index: 3001; pointer-events: auto; }
+.menu-movil .menu-content { pointer-events: auto; }
+
+/* Evitar que elementos vecinos capten clic encima del botón por error */
+header, nav { pointer-events: auto; }
+.search-container, .search-form { position: relative; z-index: 1; }
 
 /* Estabilizar opciones del menú: icono + texto alineados, sin saltos raros */
 .menu-movil .menu-content a {
