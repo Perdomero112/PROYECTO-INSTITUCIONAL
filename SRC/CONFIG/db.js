@@ -1,24 +1,30 @@
-const mysql = require("mysql2");
-const dotenv = require("dotenv");
+const mysql = require('mysql2');
+const dotenv = require('dotenv');
 
 dotenv.config();
 
-// Configuración priorizando variables de entorno y valores por defecto.
-// Usar process.env para permitir configuración en la VPS / producción.
-const conexion = mysql.createConnection({
-    host: process.env.DB_HOST || 'localhost',
-    database: process.env.DB_DATABASE || process.env.DB_NAME || 'biblioteca_ie_bg',
-    user: process.env.DB_USER || 'root',
-    password: process.env.DB_PASSWORD || '',
-    port: process.env.DB_PORT ? Number(process.env.DB_PORT) : 3306,
+// Pool de conexiones para evitar "_addCommandClosed" por conexiones cerradas/inactivas
+const pool = mysql.createPool({
+  host: process.env.DB_HOST || 'localhost',
+  database: process.env.DB_DATABASE || process.env.DB_NAME || 'biblioteca_ie_bg',
+  user: process.env.DB_USER || 'root',
+  password: process.env.DB_PASSWORD || '',
+  port: process.env.DB_PORT ? Number(process.env.DB_PORT) : 3306,
+  waitForConnections: true,
+  connectionLimit: 10,
+  queueLimit: 0,
+  enableKeepAlive: true,
+  keepAliveInitialDelay: 10000,
 });
 
-conexion.connect((err) => {
-    if (err) {
-        console.log(`Hubo un problema al conectar con la base de datos: ${err}`);
-    } else {
-        console.log(`Conectado a la base de datos en ${conexion.config.host}:${conexion.config.port} (DB: ${conexion.config.database})`);
-    }
+pool.getConnection((err, conn) => {
+  if (err) {
+    console.error('Hubo un problema al obtener conexión del pool:', err);
+  } else {
+    console.log(`Pool MySQL listo en ${conn.config.host}:${conn.config.port} (DB: ${conn.config.database})`);
+    conn.release();
+  }
 });
 
-module.exports = conexion;
+module.exports = pool;
+module.exports.promise = () => pool.promise();
