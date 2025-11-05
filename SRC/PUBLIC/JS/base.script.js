@@ -155,11 +155,29 @@ function setupMobileMenu() {
                 });
             }
             menuContent.querySelectorAll('a').forEach(link => {
-                link.addEventListener('click', () => {
+                try { link.setAttribute('target', '_self'); } catch {}
+                const go = (e) => {
+                    if (e) { e.preventDefault(); if (typeof e.stopImmediatePropagation === 'function') e.stopImmediatePropagation(); e.stopPropagation(); }
+                    const href = link.getAttribute('href');
                     menuContainer.classList.remove('active');
                     // Ocultar explícitamente al cerrar por navegación
                     menuContent.style.display = 'none';
-                });
+                    menuContent.style.visibility = 'hidden';
+                    menuContent.style.opacity = '0';
+                    menuContent.style.pointerEvents = 'none';
+                    if (overlayEl && overlayEl.parentNode) overlayEl.parentNode.removeChild(overlayEl);
+                    overlayEl = null;
+                    // restaurar portal
+                    if (placeholder && placeholder.parentNode && menuContent.parentNode === document.body) {
+                        placeholder.parentNode.insertBefore(menuContent, placeholder);
+                    }
+                    if (href) {
+                        setTimeout(() => { window.location.assign(href); }, 0);
+                    }
+                };
+                link.addEventListener('click', go);
+                link.addEventListener('touchend', go, { passive: false });
+                link.addEventListener('pointerup', go);
             });
         }
 
